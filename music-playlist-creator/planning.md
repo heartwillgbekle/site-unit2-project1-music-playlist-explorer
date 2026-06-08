@@ -1,7 +1,24 @@
 ## Music Playlist Explorer — Planning Spec
 
 ### Data Shape
-[Leave blank — fill in before Milestone 3]
+
+#### Data Schema
+
+**Playlist Object:**
+- `playlistID` (number) — unique identifier for the playlist
+- `playlistName` (string) — the display name/title of the playlist
+- `playlistCreator` (string) — the name of the person or entity who created the playlist
+- `playlistCoverUrl` (string) — URL or path to the playlist cover image
+- `likeCount` (number) — the total number of likes the playlist has received
+- `songs` (array of song objects) — collection of songs contained in this playlist
+
+**Song Object:**
+- `songID` (number) — unique identifier for the song
+- `songTitle` (string) — the title/name of the song
+- `songArtist` (string) — the name of the artist who performed the song
+- `songCoverUrl` (string) — URL or path to the song's cover art
+- `likeCount` (number) — the total number of likes this individual song has received
+- `liked` (boolean) — whether the current user has liked this song (default: false)
 
 ### UI and Interaction Rules
 
@@ -110,7 +127,33 @@
 - ARIA labels for icon-only buttons
 
 ### Function Specs
-[Add function specs here as you plan each milestone]
+
+#### `renderPlaylistCards(playlists)`
+**Purpose:** Dynamically generates playlist card elements from playlist data and displays them on the page.
+
+**Input:**
+- `playlists` (array of playlist objects) — the array of playlists to render
+
+**Output/Side Effects:**
+- Creates and appends playlist card elements to the `.playlist-cards` container
+- Displays "No playlists found" message if the array is empty
+- Returns nothing (void function)
+
+**DOM Target:**
+- Appends to: `.playlist-cards` container element
+
+**Data Fields Used:**
+- `playlistID` — set as `data-playlist-id` attribute on the card
+- `playlistCoverUrl` — set as `src` for the playlist cover image
+- `playlistName` — displayed as the card title and image alt text
+- `playlistCreator` — displayed as the creator name
+- `likeCount` — displayed next to the heart icon
+
+**Behavior:**
+- Clears existing content in the container before rendering
+- If the playlists array is empty, displays a user-friendly "No playlists found" message
+- For each playlist, creates an `<article>` element with the class `playlist-card`
+- Each card is clickable and can trigger modal display (handled by separate event listener)
 
 ### AI Feature Spec (Milestone 8)
 [Leave blank — fill in before Milestone 8]
