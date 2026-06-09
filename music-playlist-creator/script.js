@@ -15,6 +15,7 @@ async function loadPlaylists() {
 
         // Set up event listeners after cards are rendered
         setupPlaylistCardListeners();
+        setupPlaylistLikeListeners();
         setupModalCloseListeners();
     } catch (error) {
         console.error('Error loading playlists:', error);
@@ -80,28 +81,30 @@ function createPlaylistCard(playlist) {
     infoDiv.appendChild(title);
     infoDiv.appendChild(creator);
 
-    // Create likes container
-    const likesDiv = document.createElement('div');
-    likesDiv.className = 'playlist-likes';
+    // Create likes button
+    const likesBtn = document.createElement('button');
+    likesBtn.className = 'playlist-likes-btn';
+    likesBtn.setAttribute('aria-label', 'Like playlist');
+    likesBtn.setAttribute('data-liked', playlist.liked.toString());
 
     // Create heart icon
     const heartIcon = document.createElement('span');
     heartIcon.className = 'heart-icon';
-    heartIcon.textContent = '♡';
+    heartIcon.textContent = playlist.liked ? '♥' : '♡';
 
     // Create like count
     const likeCount = document.createElement('span');
     likeCount.className = 'like-count';
     likeCount.textContent = playlist.likeCount;
 
-    // Append heart and count to likes div
-    likesDiv.appendChild(heartIcon);
-    likesDiv.appendChild(likeCount);
+    // Append heart and count to likes button
+    likesBtn.appendChild(heartIcon);
+    likesBtn.appendChild(likeCount);
 
     // Append all elements to card
     card.appendChild(coverImg);
     card.appendChild(infoDiv);
-    card.appendChild(likesDiv);
+    card.appendChild(likesBtn);
 
     return card;
 }
@@ -195,6 +198,67 @@ function populatePlaylistModal(playlist) {
     playlist.songs.forEach(song => {
         const trackItem = createTrackItem(song);
         trackList.appendChild(trackItem);
+    });
+}
+
+/**
+ * Toggles the like state of a playlist
+ * @param {number} playlistID - ID of the playlist to toggle
+ * @param {HTMLElement} buttonElement - The like button that was clicked
+ */
+function togglePlaylistLike(playlistID, buttonElement) {
+    // 1. Get current state from button
+    const currentLikedState = buttonElement.getAttribute('data-liked') === 'true';
+
+    // 2. Find playlist in data
+    const playlist = playlistsData.find(p => p.playlistID === playlistID);
+
+    if (!playlist) {
+        console.error('Playlist not found:', playlistID);
+        return;
+    }
+
+    // 3. Get heart icon and like count elements
+    const heartIcon = buttonElement.querySelector('.heart-icon');
+    const likeCountSpan = buttonElement.querySelector('.like-count');
+
+    // 4. Toggle based on current state
+    if (!currentLikedState) {
+        // LIKE BRANCH: Unliked → Liked
+        playlist.liked = true;
+        playlist.likeCount = playlist.likeCount + 1;
+        buttonElement.setAttribute('data-liked', 'true');
+        heartIcon.textContent = '♥';
+    } else {
+        // UNLIKE BRANCH: Liked → Unliked
+        playlist.liked = false;
+        playlist.likeCount = Math.max(0, playlist.likeCount - 1);
+        buttonElement.setAttribute('data-liked', 'false');
+        heartIcon.textContent = '♡';
+    }
+
+    // 5. Update like count display
+    likeCountSpan.textContent = playlist.likeCount;
+}
+
+/**
+ * Sets up click event listeners for playlist like buttons
+ */
+function setupPlaylistLikeListeners() {
+    const likeButtons = document.querySelectorAll('.playlist-likes-btn');
+
+    likeButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            // Prevent event from bubbling to card click (which opens modal)
+            event.stopPropagation();
+
+            // Get playlist ID from parent card
+            const card = button.closest('.playlist-card');
+            const playlistID = parseInt(card.getAttribute('data-playlist-id'));
+
+            // Toggle the like
+            togglePlaylistLike(playlistID, button);
+        });
     });
 }
 

@@ -10,6 +10,7 @@
 - `playlistCreator` (string) — the name of the person or entity who created the playlist
 - `playlistCoverUrl` (string) — URL or path to the playlist cover image
 - `likeCount` (number) — the total number of likes the playlist has received
+- `liked` (boolean) — whether the current user has liked this playlist (default: false)
 - `songs` (array of song objects) — collection of songs contained in this playlist
 
 **Song Object:**
@@ -232,6 +233,114 @@
 - Close button: closes modal when `.close-btn` is clicked
 - Escape key: closes modal when Escape is pressed (only if modal is visible)
 - Called once during initialization
+
+#### `togglePlaylistLike(playlistID, buttonElement)`
+**Purpose:** Toggles the like state of a playlist, updating both the data model and DOM representation.
+
+**Input:**
+- `playlistID` (number) — ID of the playlist to toggle
+- `buttonElement` (HTMLElement) — the `.playlist-likes-btn` DOM element that was clicked
+
+**Output/Side Effects:**
+- Updates `playlist.liked` boolean in `playlistsData`
+- Increments or decrements `playlist.likeCount` in `playlistsData`
+- Updates button's `data-liked` attribute
+- Updates heart icon text (♡ ↔ ♥)
+- Updates like count display
+- Returns nothing (void function)
+
+**DOM Target:**
+- Updates elements within: `.playlist-likes-btn` on playlist cards
+
+**Data Fields Used:**
+- Playlist level: `playlistID`, `liked`, `likeCount`
+
+**Behavior - Branch 1: Like (Unliked → Liked)**
+
+*Trigger:* User clicks like button when `data-liked="false"` (unliked state)
+
+*Data Model Changes:*
+1. Find playlist in `playlistsData` by `playlistID`
+2. Set `playlist.liked = true` (user has now liked this playlist)
+3. Increment `playlist.likeCount` by 1
+
+*DOM Updates:*
+1. Set button `data-liked="true"` (triggers CSS green background)
+2. Change heart icon from `♡` to `♥` (filled heart)
+3. Update like count display to show new count
+
+*Visual Result:*
+- Button changes from gray to green background
+- Heart icon changes to filled (♥)
+- Like count increments by 1
+- Heart "pops" with animation (CSS handles automatically)
+
+*Constraints:*
+- Like count MUST increment by exactly 1
+- Heart icon MUST change from ♡ to ♥
+- `data-liked` attribute MUST be string "true" (not boolean)
+- Changes persist in `playlistsData` for the session
+- User can only like a playlist once at a time (toggling prevents multiple likes)
+
+**Behavior - Branch 2: Unlike (Liked → Unliked)**
+
+*Trigger:* User clicks like button when `data-liked="true"` (already liked)
+
+*Data Model Changes:*
+1. Find playlist in `playlistsData` by `playlistID`
+2. Set `playlist.liked = false` (user no longer likes this playlist)
+3. Decrement `playlist.likeCount` by 1 (minimum 0)
+
+*DOM Updates:*
+1. Set button `data-liked="false"` (removes CSS green background rule)
+2. Change heart icon from `♥` to `♡` (unfilled heart)
+3. Update like count display to show new count
+
+*Visual Result:*
+- Button changes from green to gray background
+- Heart icon changes to unfilled (♡)
+- Like count decrements by 1
+- Smooth transition back to default state
+
+*Constraints:*
+- Like count MUST decrement by exactly 1
+- Heart icon MUST change from ♥ to ♡
+- `data-liked` attribute MUST be string "false" (not boolean)
+- Like count MUST NOT go below 0 (use `Math.max(0, ...)`)
+- Changes persist in `playlistsData` for the session
+- The constraint that ensures a user can only like once: The `data-liked` attribute acts as a toggle - when true, clicking unlikes; when false, clicking likes. The boolean state prevents duplicate likes.
+
+**Edge Cases:**
+- Multiple clicks: Each click toggles state correctly (like → unlike → like)
+- Like count at 0: Unliking protects against negative values with `Math.max(0, count - 1)`
+- Page refresh: Likes reset to initial state (no localStorage/backend persistence)
+
+#### `setupPlaylistLikeListeners()`
+**Purpose:** Attaches click event listeners to all playlist like buttons on cards.
+
+**Input:**
+- None (reads from DOM)
+
+**Output/Side Effects:**
+- Attaches click handler to every `.playlist-likes-btn` element
+- Returns nothing (void function)
+
+**DOM Target:**
+- Targets all `.playlist-likes-btn` buttons in `.playlist-cards` container
+
+**Data Fields Used:**
+- `data-playlist-id` from parent `.playlist-card` element
+
+**Behavior:**
+- Called after `renderPlaylistCards()` creates all playlist cards
+- Prevents event propagation to avoid triggering card click (modal open)
+- Extracts playlist ID from parent card's `data-playlist-id` attribute
+- Calls `togglePlaylistLike()` with playlist ID and button element
+
+**Why needed:**
+- Like buttons are dynamically created each time playlists render
+- Event listeners must be re-attached after DOM reconstruction
+- Must stop propagation to prevent card click from opening modal
 
 ### AI Feature Spec (Milestone 8)
 [Leave blank — fill in before Milestone 8]

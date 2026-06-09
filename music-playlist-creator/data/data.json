@@ -54,7 +54,8 @@
         "likeCount": 312,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "playlistID": 2,
@@ -95,7 +96,8 @@
         "likeCount": 198,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "playlistID": 3,
@@ -144,7 +146,8 @@
         "likeCount": 356,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "playlistID": 4,
@@ -185,7 +188,8 @@
         "likeCount": 198,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "playlistID": 5,
@@ -234,7 +238,8 @@
         "likeCount": 467,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "playlistID": 6,
@@ -275,7 +280,8 @@
         "likeCount": 412,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "playlistID": 7,
@@ -316,7 +322,8 @@
         "likeCount": 198,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "playlistID": 8,
@@ -365,6 +372,7 @@
         "likeCount": 489,
         "liked": false
       }
-    ]
+    ],
+    "liked": false
   }
 ]
