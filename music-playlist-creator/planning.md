@@ -342,6 +342,109 @@
 - Event listeners must be re-attached after DOM reconstruction
 - Must stop propagation to prevent card click from opening modal
 
+#### `shuffleArray(array)`
+**Purpose:** Shuffles an array using the Fisher-Yates algorithm, creating a new randomized array without modifying the original.
+
+**Input:**
+- `array` (Array) — the array to shuffle
+
+**Output:**
+- Returns new shuffled array (original array unchanged)
+
+**Algorithm:**
+- Fisher-Yates shuffle (unbiased randomization)
+- Creates copy of input array using spread operator
+- Iterates backwards from last element to first
+- For each position i, picks random index j from 0 to i
+- Swaps elements at positions i and j
+- Returns shuffled copy
+
+**Why Fisher-Yates:**
+- Mathematically proven unbiased (every permutation equally likely)
+- O(n) time complexity
+- Industry standard algorithm
+
+#### `toggleShuffle()`
+**Purpose:** Toggles shuffle state for the currently displayed playlist in the modal.
+
+**Input:**
+- None (reads from global `currentPlaylist`, `isShuffled` state)
+
+**Output/Side Effects:**
+- Re-renders track list in shuffled or original order
+- Updates `isShuffled` boolean flag
+- Updates `originalSongOrder` array (saves/clears)
+- Updates shuffle button's `data-shuffled` attribute
+- Re-attaches song like listeners after DOM rebuild
+- Returns nothing (void function)
+
+**DOM Target:**
+- `.track-list` — cleared and rebuilt
+- `.shuffle-btn` — `data-shuffled` attribute updated
+
+**Behavior - Branch 1: Shuffle On (isShuffled = false)**
+
+*Trigger:* User clicks shuffle button when tracks are in original order
+
+*Steps:*
+1. Save original song order: `originalSongOrder = [...currentPlaylist.songs]`
+2. Create shuffled array using `shuffleArray()`
+3. Clear track list DOM: `trackList.innerHTML = ''`
+4. Re-render tracks in shuffled order
+5. Set `isShuffled = true`
+6. Set button `data-shuffled="true"` (triggers CSS green state)
+7. Re-attach like button listeners
+
+*Visual Result:*
+- Tracks appear in random order
+- Shuffle button turns green, icon rotates 180°
+- All songs still present (count unchanged)
+
+**Behavior - Branch 2: Shuffle Off (isShuffled = true)**
+
+*Trigger:* User clicks shuffle button when tracks are already shuffled
+
+*Steps:*
+1. Clear track list DOM: `trackList.innerHTML = ''`
+2. Re-render tracks using saved `originalSongOrder` array
+3. Set `isShuffled = false`
+4. Set button `data-shuffled="false"` (removes CSS green state)
+5. Re-attach like button listeners
+
+*Visual Result:*
+- Tracks return to original order
+- Shuffle button returns to white, icon rotates back to 0°
+- Song like states preserved
+
+**Constraints:**
+- Requires `currentPlaylist` to be set (guard clause exits early if null)
+- Original `playlist.songs` array never modified (only visual reordering)
+- Must re-attach event listeners after each DOM rebuild
+- Shuffle state resets when modal closes
+
+#### `setupShuffleListener()`
+**Purpose:** Attaches click event listener to the shuffle button in the modal.
+
+**Input:**
+- None (reads from DOM)
+
+**Output/Side Effects:**
+- Attaches click handler to `.shuffle-btn` element
+- Returns nothing (void function)
+
+**DOM Target:**
+- `.shuffle-btn` in modal header
+
+**Behavior:**
+- Called once when modal opens (in `openModal()`)
+- Finds shuffle button via querySelector
+- Attaches `toggleShuffle` as click handler
+- Guard: only attaches if button exists
+
+**Why needed:**
+- Shuffle button is in modal, needs listener attached on modal open
+- Simple event delegation, no need to re-attach on shuffle (button persists)
+
 ### AI Feature Spec (Milestone 8)
 [Leave blank — fill in before Milestone 8]
 

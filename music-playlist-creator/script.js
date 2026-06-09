@@ -1,5 +1,8 @@
-// Global variable to store playlist data
+// Global variables to store playlist data and state
 let playlistsData = [];
+let currentPlaylist = null;
+let isShuffled = false;
+let originalSongOrder = null;
 
 /**
  * Fetches playlist data from data.json
@@ -202,6 +205,78 @@ function populatePlaylistModal(playlist) {
 }
 
 /**
+ * Shuffles an array using Fisher-Yates algorithm
+ * @param {Array} array - Array to shuffle
+ * @returns {Array} - New shuffled array (original unchanged)
+ */
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+/**
+ * Toggles shuffle state for the current playlist
+ */
+function toggleShuffle() {
+    if (!currentPlaylist) {
+        console.error('No playlist is currently open');
+        return;
+    }
+
+    const shuffleBtn = document.querySelector('.shuffle-btn');
+    const trackList = document.querySelector('.track-list');
+
+    if (!isShuffled) {
+        // SHUFFLE ON: Save original order and shuffle
+        originalSongOrder = [...currentPlaylist.songs];
+        const shuffled = shuffleArray(currentPlaylist.songs);
+
+        // Re-render track list with shuffled order
+        trackList.innerHTML = '';
+        shuffled.forEach(song => {
+            const trackItem = createTrackItem(song);
+            trackList.appendChild(trackItem);
+        });
+
+        // Update state and button
+        isShuffled = true;
+        shuffleBtn.setAttribute('data-shuffled', 'true');
+
+        // Re-attach like listeners after re-rendering
+        setupSongLikeListeners();
+    } else {
+        // SHUFFLE OFF: Restore original order
+        trackList.innerHTML = '';
+        originalSongOrder.forEach(song => {
+            const trackItem = createTrackItem(song);
+            trackList.appendChild(trackItem);
+        });
+
+        // Update state and button
+        isShuffled = false;
+        shuffleBtn.setAttribute('data-shuffled', 'false');
+
+        // Re-attach like listeners after re-rendering
+        setupSongLikeListeners();
+    }
+}
+
+/**
+ * Sets up click event listener for shuffle button
+ */
+function setupShuffleListener() {
+    const shuffleBtn = document.querySelector('.shuffle-btn');
+
+    if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', toggleShuffle);
+    }
+}
+
+/**
  * Toggles the like state of a playlist
  * @param {number} playlistID - ID of the playlist to toggle
  * @param {HTMLElement} buttonElement - The like button that was clicked
@@ -297,8 +372,15 @@ function displayErrorMessage(errorText) {
 function openModal(playlist) {
     const modal = document.getElementById('playlistModal');
 
+    // Store current playlist for like handlers and shuffle
+    currentPlaylist = playlist;
+
     // Populate modal with playlist data
     populatePlaylistModal(playlist);
+
+    // Set up event listeners
+    setupSongLikeListeners();
+    setupShuffleListener();
 
     // Show the modal
     modal.removeAttribute('hidden');
@@ -312,12 +394,20 @@ function openModal(playlist) {
  */
 function closeModal() {
     const modal = document.getElementById('playlistModal');
+    const shuffleBtn = document.querySelector('.shuffle-btn');
 
     // Hide the modal
     modal.setAttribute('hidden', '');
 
     // Re-enable page scrolling
     document.body.style.overflow = '';
+
+    // Reset shuffle state
+    isShuffled = false;
+    originalSongOrder = null;
+    if (shuffleBtn) {
+        shuffleBtn.setAttribute('data-shuffled', 'false');
+    }
 }
 
 /**

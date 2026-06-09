@@ -398,6 +398,19 @@ body {
     outline-color: rgba(255, 59, 48, 0.3);
 }
 
+/* Shuffle button active state */
+.shuffle-btn[data-shuffled="true"] {
+    background: #1ED760;
+    border-color: #1ED760;
+    color: #ffffff;
+    transform: rotate(180deg);
+}
+
+.shuffle-btn[data-shuffled="true"]:hover {
+    background: #1ab558;
+    transform: rotate(180deg) scale(1.05);
+}
+
 /* ===== MODAL BODY ===== */
 .modal-body {
     padding: 2rem 2rem 1.5rem;
