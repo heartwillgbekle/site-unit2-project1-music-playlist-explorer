@@ -445,6 +445,59 @@
 - Shuffle button is in modal, needs listener attached on modal open
 - Simple event delegation, no need to re-attach on shuffle (button persists)
 
+#### `toggleSongLike(playlistID, songID, buttonElement)`
+**Purpose:** Toggles the like state of an individual song in the modal track list.
+
+**Input:**
+- `playlistID` (number) — ID of the playlist containing the song
+- `songID` (number) — ID of the song to toggle
+- `buttonElement` (HTMLElement) — the `.like-btn` DOM element that was clicked
+
+**Output/Side Effects:**
+- Updates `song.liked` boolean in `playlistsData`
+- Increments or decrements `song.likeCount` in `playlistsData`
+- Updates button's `data-liked` attribute
+- Updates heart icon text (♡ ↔ ♥)
+- Updates like count display
+- Returns nothing (void function)
+
+**DOM Target:**
+- `.like-btn` button within `.track-item` in `.track-list`
+
+**Data Fields Used:**
+- Song level: `songID`, `liked`, `likeCount`
+
+**Behavior:**
+- Similar to `togglePlaylistLike()` but operates on songs in modal
+- Like branch: Sets `liked: true`, increments count, shows filled heart
+- Unlike branch: Sets `liked: false`, decrements count (min 0), shows unfilled heart
+- Persists through shuffle (data not affected by visual reordering)
+
+#### `setupSongLikeListeners()`
+**Purpose:** Attaches click event listeners to all song like buttons in the modal track list.
+
+**Input:**
+- None (reads from DOM)
+
+**Output/Side Effects:**
+- Attaches click handler to every `.like-btn` element in modal
+- Returns nothing (void function)
+
+**DOM Target:**
+- All `.like-btn` buttons within `.track-list`
+
+**Behavior:**
+- Called after modal populates or track list re-renders
+- Must be re-called after shuffle (DOM is rebuilt)
+- Prevents event bubbling with `stopPropagation()`
+- Extracts song ID from parent `.track-item` data attribute
+- Uses `currentPlaylist` global for playlist ID
+
+**Why needed:**
+- Song like buttons are dynamically created when modal populates
+- Must be re-attached after shuffle/unshuffle (DOM rebuild)
+- Each shuffle destroys and recreates track items, losing event listeners
+
 ### AI Feature Spec (Milestone 8)
 [Leave blank — fill in before Milestone 8]
 

@@ -317,6 +317,79 @@ function togglePlaylistLike(playlistID, buttonElement) {
 }
 
 /**
+ * Toggles the like state of a song in the modal
+ * @param {number} playlistID - ID of the playlist containing the song
+ * @param {number} songID - ID of the song to toggle
+ * @param {HTMLElement} buttonElement - The like button that was clicked
+ */
+function toggleSongLike(playlistID, songID, buttonElement) {
+    // Get current state from button
+    const currentLikedState = buttonElement.getAttribute('data-liked') === 'true';
+
+    // Find playlist and song in data
+    const playlist = playlistsData.find(p => p.playlistID === playlistID);
+    if (!playlist) {
+        console.error('Playlist not found:', playlistID);
+        return;
+    }
+
+    const song = playlist.songs.find(s => s.songID === songID);
+    if (!song) {
+        console.error('Song not found:', songID);
+        return;
+    }
+
+    // Get heart icon and like count elements
+    const heartIcon = buttonElement.querySelector('.heart-icon');
+    const likeCountSpan = buttonElement.querySelector('.like-count');
+
+    // Toggle based on current state
+    if (!currentLikedState) {
+        // LIKE: Unliked → Liked
+        song.liked = true;
+        song.likeCount = song.likeCount + 1;
+        buttonElement.setAttribute('data-liked', 'true');
+        heartIcon.textContent = '♥';
+    } else {
+        // UNLIKE: Liked → Unliked
+        song.liked = false;
+        song.likeCount = Math.max(0, song.likeCount - 1);
+        buttonElement.setAttribute('data-liked', 'false');
+        heartIcon.textContent = '♡';
+    }
+
+    // Update like count display
+    likeCountSpan.textContent = song.likeCount;
+}
+
+/**
+ * Sets up click event listeners for song like buttons in the modal
+ */
+function setupSongLikeListeners() {
+    const likeButtons = document.querySelectorAll('.like-btn');
+
+    likeButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            // Prevent event bubbling
+            event.stopPropagation();
+
+            // Get song ID from parent track item
+            const trackItem = button.closest('.track-item');
+            const songID = parseInt(trackItem.getAttribute('data-track-id'));
+
+            // Get playlist ID from current playlist
+            if (!currentPlaylist) {
+                console.error('No playlist is currently open');
+                return;
+            }
+
+            // Toggle the like
+            toggleSongLike(currentPlaylist.playlistID, songID, button);
+        });
+    });
+}
+
+/**
  * Sets up click event listeners for playlist like buttons
  */
 function setupPlaylistLikeListeners() {
