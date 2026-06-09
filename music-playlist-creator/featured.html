@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Featured Playlist - Music Playlist Explorer</title>
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header class="app-header">
+        <nav class="featured-nav">
+            <a href="index.html" class="back-link">
+                <span class="back-icon">←</span> All Playlists
+            </a>
+            <h1 class="app-title">Music Playlist Explorer</h1>
+        </nav>
+    </header>
+
+    <!-- Main Content: Two-Column Layout -->
+    <main class="featured-main" aria-label="Featured Playlist">
+        <div class="featured-container">
+            <!-- Left Column: Playlist Showcase -->
+            <aside class="featured-left">
+                <img src="assets/img/playlist.png" alt="Playlist cover" class="featured-cover">
+
+                <div class="featured-metadata">
+                    <h2 class="featured-title">Loading...</h2>
+                    <p class="featured-creator">by Unknown</p>
+                    <div class="featured-likes">
+                        <span class="heart-icon">♥</span>
+                        <span class="featured-like-count">0</span> likes
+                    </div>
+                </div>
+
+                <div class="featured-actions">
+                    <button class="shuffle-btn featured-shuffle" aria-label="Shuffle playlist tracks" data-shuffled="false">
+                        <span class="shuffle-icon">🔀</span>
+                        <span class="button-label">Shuffle</span>
+                    </button>
+                    <a href="index.html" class="view-all-btn">View All Playlists</a>
+                </div>
+            </aside>
+
+            <!-- Right Column: Track List -->
+            <section class="featured-right">
+                <div class="featured-header">
+                    <h3 class="section-title">Featured Playlist</h3>
+                    <p class="section-subtitle">Your daily playlist pick</p>
+                </div>
+
+                <ul class="featured-track-list">
+                    <!-- Tracks will be dynamically generated -->
+                </ul>
+
+                <button class="refresh-btn" aria-label="Select new random playlist">
+                    <span class="refresh-icon">⟳</span>
+                    <span class="button-label">New Random Playlist</span>
+                </button>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>Made with ♥ for music lovers</p>
+    </footer>
+
+    <script src="featured.js"></script>
+</body>
+</html>
