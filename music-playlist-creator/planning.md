@@ -498,6 +498,491 @@
 - Must be re-attached after shuffle/unshuffle (DOM rebuild)
 - Each shuffle destroys and recreates track items, losing event listeners
 
+### Featured Page Specification
+
+#### Overview
+
+The Featured Page is a dedicated landing page that showcases a randomly selected "Featured Playlist of the Day." It provides a magazine-style layout with the playlist displayed prominently, offering an immersive browsing experience before users explore the full playlist library.
+
+**Purpose:**
+- Create a visually striking entry point to the application
+- Highlight one playlist in an editorial, curated style
+- Provide seamless navigation to the All Playlists page
+- Encourage discovery through randomization
+
+---
+
+#### Page Layout
+
+**Two-Column Design (Desktop):**
+
+```
+┌─────────────────────────────────────────────────┐
+│  HEADER (Navigation)                            │
+│  [← All Playlists]  Music Playlist Explorer     │
+├──────────────────┬──────────────────────────────┤
+│                  │                              │
+│   LEFT COLUMN    │     RIGHT COLUMN             │
+│   (40% width)    │     (60% width)              │
+│                  │                              │
+│ ┌──────────────┐ │  "Featured Playlist"         │
+│ │              │ │                              │
+│ │   Playlist   │ │  Playlist Name               │
+│ │     Cover    │ │  by Creator                  │
+│ │   (Large)    │ │                              │
+│ │              │ │  Description/Tags            │
+│ │  300x300px   │ │                              │
+│ │              │ │  ─────────────────────       │
+│ └──────────────┘ │                              │
+│                  │  Track List:                 │
+│  Playlist Name   │  1. Song Title - Artist ♥ 127│
+│  by Creator      │  2. Song Title - Artist ♥ 89 │
+│                  │  3. Song Title - Artist ♥ 201│
+│  ♥ 5 likes       │  4. Song Title - Artist ♥ 156│
+│                  │  5. Song Title - Artist ♥ 94 │
+│  [🔀 Shuffle]    │  6. Song Title - Artist ♥ 312│
+│  [View All]      │                              │
+│                  │  [⟳ New Random Playlist]     │
+└──────────────────┴──────────────────────────────┘
+```
+
+**Mobile Layout (Stacked):**
+- Header at top
+- Playlist cover below (centered, full-width with padding)
+- Playlist info below cover
+- Track list below info
+- Action buttons at bottom
+
+---
+
+#### Layout Sections
+
+**1. Header / Navigation Bar**
+- Fixed at top of page
+- Contains:
+  - Back arrow + "All Playlists" link (left)
+  - App title "Music Playlist Explorer" (center)
+  - Optional: Theme toggle or user menu (right)
+- Background: Dark gradient matching main app header
+- Sticky positioning
+
+**2. Left Column (Playlist Showcase)**
+- **Playlist Cover:**
+  - Large image (300x300px on desktop, full-width on mobile)
+  - Subtle box shadow for depth
+  - Rounded corners (12px)
+  - High-quality display
+- **Playlist Metadata:**
+  - Playlist name (large, bold typography)
+  - Creator name (smaller, gray text with "by" prefix)
+  - Like count with heart icon
+  - Playlist tags (optional: "Chill", "Workout", "Summer", etc.)
+- **Action Buttons:**
+  - Shuffle button (🔀 Shuffle Playlist)
+  - "View All Playlists" button (primary CTA)
+  - Styled consistently with modal buttons
+
+**3. Right Column (Track List)**
+- **Section Header:**
+  - "Featured Playlist" label
+  - Subtitle: "Your daily playlist pick"
+- **Track List Display:**
+  - Numbered list (1-6)
+  - Each track shows:
+    - Track number
+    - Song title
+    - Artist name
+    - Like count with heart icon
+  - Hover effects (background highlight)
+  - Like buttons interactive (same as modal)
+- **Refresh Button:**
+  - "New Random Playlist" button at bottom
+  - Reloads page with different random selection
+  - Icon: ⟳ (refresh/cycle icon)
+
+**4. Footer (Optional)**
+- Copyright info
+- Links to social media
+- Matches main app footer
+
+---
+
+#### Function Specifications
+
+##### `selectRandomPlaylist(playlists)`
+
+**Purpose:** Randomly selects one playlist from the available playlists array to feature on the page.
+
+**Input:**
+- `playlists` (Array) — array of all available playlist objects from `data.json`
+
+**Output:**
+- Returns a single playlist object (randomly selected)
+- Returns `null` if playlists array is empty
+
+**Algorithm:**
+```javascript
+1. Check if playlists array is empty or invalid
+2. Generate random index: Math.floor(Math.random() * playlists.length)
+3. Return playlist at that index
+```
+
+**When to run:**
+- On page load (DOMContentLoaded event)
+- When user clicks "New Random Playlist" button
+- Could use localStorage to ensure different playlist than last visit
+
+**Constraints:**
+- Random selection should be truly random (no bias)
+- Should not select same playlist twice in a row (use localStorage)
+- Gracefully handles empty playlist array
+
+##### `renderFeaturedPlaylist(playlist)`
+
+**Purpose:** Populates the Featured Page with the selected playlist's data.
+
+**Input:**
+- `playlist` (Object) — the playlist object to display
+
+**Output:**
+- Returns nothing (void function)
+- Side effects: Updates all DOM elements on page
+
+**DOM Elements Updated:**
+- `.featured-cover` — playlist cover image (`src`, `alt`)
+- `.featured-title` — playlist name
+- `.featured-creator` — creator name
+- `.featured-likes` — like count
+- `.featured-track-list` — complete track list (cleared and rebuilt)
+
+**Data Fields Used:**
+- Playlist: `playlistCoverUrl`, `playlistName`, `playlistCreator`, `likeCount`, `songs`
+- Song: `songID`, `songTitle`, `songArtist`, `likeCount`, `liked`
+
+**Behavior:**
+- Clears existing track list before rendering
+- Creates numbered track items (1. Song - Artist)
+- Attaches like button event listeners to each track
+- Updates page title to include playlist name
+- Displays "No tracks" message if playlist.songs is empty
+
+##### `loadFeaturedPage()`
+
+**Purpose:** Main initialization function for the Featured Page.
+
+**Input:**
+- None (reads from data file)
+
+**Output:**
+- Returns nothing (void function)
+
+**Flow:**
+```javascript
+1. Fetch data from data.json
+2. Check for last viewed playlist in localStorage
+3. Select random playlist (excluding last viewed if possible)
+4. Render selected playlist
+5. Store selected playlist ID in localStorage
+6. Set up event listeners (shuffle, refresh, likes, navigation)
+```
+
+**Error Handling:**
+- Display error message if data fails to load
+- Show fallback UI if no playlists available
+
+##### `refreshFeaturedPlaylist()`
+
+**Purpose:** Selects and displays a new random playlist.
+
+**Input:**
+- None (reads from global `playlistsData`)
+
+**Output:**
+- Returns nothing (void function)
+
+**Behavior:**
+- Gets currently displayed playlist ID
+- Selects new random playlist (different from current)
+- Renders new playlist
+- Updates localStorage
+- Smooth transition animation (optional fade effect)
+
+##### `setupFeaturedPageListeners()`
+
+**Purpose:** Attaches all event listeners for the Featured Page.
+
+**Input:**
+- None
+
+**Output:**
+- Returns nothing (void function)
+
+**Listeners to attach:**
+- Shuffle button → shuffle current featured playlist's tracks
+- Refresh button → `refreshFeaturedPlaylist()`
+- Like buttons → `toggleSongLike()` for each track
+- Navigation link → navigate to `index.html`
+
+---
+
+#### Navigation System
+
+**From All Playlists Page (index.html) to Featured Page (featured.html):**
+
+**Option 1: Navigation Link in Header**
+```html
+<nav class="main-nav">
+  <a href="featured.html" class="nav-link">Featured</a>
+  <a href="index.html" class="nav-link active">All Playlists</a>
+</nav>
+```
+
+**Option 2: Featured Button/Banner**
+- Add "View Featured Playlist" button in header
+- Styled prominently to encourage clicks
+- Icon: ⭐ or 🎵
+
+**From Featured Page to All Playlists Page:**
+
+**Back Navigation:**
+```html
+<a href="index.html" class="back-link">
+  <span class="back-icon">←</span> All Playlists
+</a>
+```
+
+**Primary CTA:**
+- "View All Playlists" button in left column
+- Large, prominent button
+- Takes user to full library (index.html)
+
+**Navigation Styling:**
+- Consistent with app's design language
+- Green accent color (#1ED760) for active states
+- Smooth transitions on hover
+- Clear visual hierarchy
+
+**URL Structure:**
+- Main page: `/` or `/index.html` (All Playlists)
+- Featured page: `/featured.html` (Featured Playlist)
+- Simple, clean URLs without query parameters
+
+---
+
+#### Data Flow
+
+**Page Load Sequence:**
+```
+1. User navigates to featured.html
+   ↓
+2. loadFeaturedPage() runs on DOMContentLoaded
+   ↓
+3. Fetch data from data/data.json
+   ↓
+4. selectRandomPlaylist(playlists)
+   ↓
+5. renderFeaturedPlaylist(selectedPlaylist)
+   ↓
+6. setupFeaturedPageListeners()
+   ↓
+7. Page fully interactive
+```
+
+**Refresh Flow:**
+```
+1. User clicks "New Random Playlist" button
+   ↓
+2. refreshFeaturedPlaylist() called
+   ↓
+3. Select new random playlist (different from current)
+   ↓
+4. Fade out current content (optional animation)
+   ↓
+5. renderFeaturedPlaylist(newPlaylist)
+   ↓
+6. Fade in new content
+   ↓
+7. Update localStorage with new playlist ID
+```
+
+**Shuffle Flow (on Featured Page):**
+```
+1. User clicks shuffle button in left column
+   ↓
+2. toggleFeaturedShuffle() called
+   ↓
+3. Same logic as modal shuffle:
+   - Save original order
+   - Shuffle array using Fisher-Yates
+   - Re-render track list
+   - Update button state (green when active)
+   ↓
+4. Re-attach like listeners
+```
+
+---
+
+#### Design Decisions
+
+**1. Why Random Selection?**
+- Creates serendipitous discovery experience
+- Encourages exploration of full library
+- No editorial bias (fair to all playlists)
+- "Playlist of the Day" feel without manual curation
+
+**2. Why Two-Column Layout?**
+- Magazine/editorial aesthetic
+- Focuses attention on cover art (visual impact)
+- Separates metadata from content (clear hierarchy)
+- Desktop-optimized, stacks well on mobile
+
+**3. Why Separate HTML File?**
+- Clean separation of concerns
+- Different layout requires different structure
+- Easier to maintain and test
+- Can be deployed independently
+
+**4. Why Include Shuffle on Featured Page?**
+- Consistent with modal functionality
+- Allows exploration without leaving page
+- Demonstrates feature to new users
+- Enhances featured playlist experience
+
+**5. Why "New Random Playlist" Button?**
+- Empowers user to explore without navigation
+- Creates slot-machine/discovery excitement
+- Reduces friction (no need to go back to All Playlists)
+- Encourages multiple playlist views in one session
+
+---
+
+#### Responsive Design
+
+**Desktop (>768px):**
+- Two-column layout (40/60 split)
+- Fixed navigation header
+- Large playlist cover (300x300px)
+- Track list scrollable if needed
+
+**Tablet (768px - 480px):**
+- Two-column layout collapses to 50/50
+- Slightly smaller cover (250x250px)
+- Navigation remains horizontal
+
+**Mobile (<480px):**
+- Single column, stacked layout
+- Cover full-width with padding
+- Navigation icon-only or hamburger menu
+- Touch-optimized buttons (larger tap targets)
+- Shuffle button full-width at bottom
+
+---
+
+#### Accessibility Considerations
+
+**ARIA Labels:**
+- `<main aria-label="Featured Playlist">`
+- `<nav aria-label="Main Navigation">`
+- `<button aria-label="Select new random playlist">`
+- `<button aria-label="Shuffle playlist tracks">`
+
+**Keyboard Navigation:**
+- Tab order: Navigation → Shuffle → View All → Tracks → Refresh
+- Enter/Space activates buttons
+- Arrow keys navigate track list (optional enhancement)
+
+**Screen Readers:**
+- Descriptive alt text on playlist cover
+- Live region announces playlist changes
+- Meaningful link text ("All Playlists" not "Click Here")
+
+**Focus Indicators:**
+- Visible focus rings on all interactive elements
+- High contrast focus states
+- Consistent with main app styling
+
+---
+
+#### Enhancement Ideas (Future Iterations)
+
+**1. Daily Featured Playlist:**
+- Use date-based seeding for Math.random()
+- Same playlist shown to all users on same day
+- "Featured on [Date]" label
+
+**2. Animated Transitions:**
+- Fade/slide animation when changing playlists
+- Smooth shuffle re-ordering (tracks slide into position)
+- Page load animation (cover zooms in)
+
+**3. Playlist Tags/Categories:**
+- Display genre tags below playlist info
+- Clickable tags filter main library by category
+- Color-coded tag badges
+
+**4. Social Sharing:**
+- "Share this playlist" button
+- Generates shareable link to specific playlist
+- Social media preview cards
+
+**5. Play Preview:**
+- Audio player for 30-second song previews
+- Spotify/Apple Music integration
+- Play button on each track
+
+**6. Playlist Stats:**
+- Total duration (e.g., "24 minutes")
+- Number of songs
+- Average song length
+- Creation date
+
+---
+
+#### File Structure
+
+```
+music-playlist-creator/
+├── index.html              # All Playlists page (existing)
+├── featured.html           # NEW: Featured page
+├── style.css               # Shared styles (add featured styles)
+├── script.js               # Main page JS (existing)
+├── featured.js             # NEW: Featured page JS
+├── data/
+│   └── data.json          # Playlist data (existing)
+└── assets/
+    └── img/               # Images (existing)
+```
+
+**Shared Resources:**
+- `style.css` — add featured page styles, reuse base styles
+- `data/data.json` — same data source
+- Same fonts, colors, design tokens
+
+---
+
+#### Implementation Checklist
+
+**Planning Phase:**
+- [x] Define page layout and sections
+- [x] Specify random selection function
+- [x] Specify render function
+- [x] Plan navigation system
+- [x] Design responsive breakpoints
+- [x] Document accessibility requirements
+
+**Implementation Phase:**
+- [ ] Create `featured.html` with semantic structure
+- [ ] Add Featured Page styles to `style.css`
+- [ ] Create `featured.js` with all functions
+- [ ] Implement `selectRandomPlaylist()`
+- [ ] Implement `renderFeaturedPlaylist()`
+- [ ] Implement shuffle functionality for featured page
+- [ ] Add navigation links to both pages
+- [ ] Test random selection (no repeats)
+- [ ] Test responsive design (mobile/tablet/desktop)
+- [ ] Test all interactive features (shuffle, like, refresh)
+- [ ] Verify accessibility (keyboard, screen reader)
+
 ### AI Feature Spec (Milestone 8)
 [Leave blank — fill in before Milestone 8]
 
