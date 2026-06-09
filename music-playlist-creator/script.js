@@ -103,6 +103,98 @@ function createPlaylistCard(playlist) {
 }
 
 /**
+ * Creates a single track list item element
+ * @param {Object} song - Song object containing song data
+ * @returns {HTMLElement} - The created list item element
+ */
+function createTrackItem(song) {
+    // Create list item container
+    const trackItem = document.createElement('li');
+    trackItem.className = 'track-item';
+    trackItem.setAttribute('data-track-id', song.songID);
+
+    // Create track cover image
+    const trackCover = document.createElement('img');
+    trackCover.src = song.songCoverUrl;
+    trackCover.alt = `${song.songTitle} cover`;
+    trackCover.className = 'track-cover';
+
+    // Create track info container
+    const trackInfo = document.createElement('div');
+    trackInfo.className = 'track-info';
+
+    // Create track title
+    const trackTitle = document.createElement('h3');
+    trackTitle.className = 'track-title';
+    trackTitle.textContent = song.songTitle;
+
+    // Create track artist
+    const trackArtist = document.createElement('p');
+    trackArtist.className = 'track-artist';
+    trackArtist.textContent = song.songArtist;
+
+    // Append title and artist to info container
+    trackInfo.appendChild(trackTitle);
+    trackInfo.appendChild(trackArtist);
+
+    // Create like button
+    const likeBtn = document.createElement('button');
+    likeBtn.className = 'like-btn';
+    likeBtn.setAttribute('aria-label', 'Like song');
+    likeBtn.setAttribute('data-liked', song.liked.toString());
+
+    // Create heart icon
+    const heartIcon = document.createElement('span');
+    heartIcon.className = 'heart-icon';
+    heartIcon.textContent = song.liked ? '♥' : '♡';
+
+    // Create like count
+    const likeCount = document.createElement('span');
+    likeCount.className = 'like-count';
+    likeCount.textContent = song.likeCount;
+
+    // Append heart and count to button
+    likeBtn.appendChild(heartIcon);
+    likeBtn.appendChild(likeCount);
+
+    // Append all elements to track item
+    trackItem.appendChild(trackCover);
+    trackItem.appendChild(trackInfo);
+    trackItem.appendChild(likeBtn);
+
+    return trackItem;
+}
+
+/**
+ * Populates the modal with playlist details and track list
+ * @param {Object} playlist - Playlist object containing all playlist data
+ */
+function populatePlaylistModal(playlist) {
+    // Update playlist cover image
+    const modalCover = document.querySelector('.modal-playlist-cover');
+    modalCover.src = playlist.playlistCoverUrl;
+    modalCover.alt = `${playlist.playlistName} cover`;
+
+    // Update playlist title
+    const modalTitle = document.querySelector('.modal-playlist-title');
+    modalTitle.textContent = playlist.playlistName;
+
+    // Update playlist creator
+    const modalCreator = document.querySelector('.modal-playlist-creator');
+    modalCreator.textContent = `by ${playlist.playlistCreator}`;
+
+    // Clear existing track list
+    const trackList = document.querySelector('.track-list');
+    trackList.innerHTML = '';
+
+    // Create and append track items
+    playlist.songs.forEach(song => {
+        const trackItem = createTrackItem(song);
+        trackList.appendChild(trackItem);
+    });
+}
+
+/**
  * Displays a message when no playlists are found
  * @param {HTMLElement} container - The container element to append the message to
  */

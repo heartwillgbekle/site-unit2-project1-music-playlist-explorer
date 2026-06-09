@@ -155,6 +155,32 @@
 - For each playlist, creates an `<article>` element with the class `playlist-card`
 - Each card is clickable and can trigger modal display (handled by separate event listener)
 
+#### `populatePlaylistModal(playlist)`
+**Purpose:** Populates the modal overlay with detailed playlist information including track list.
+
+**Input:**
+- `playlist` (playlist object) — the complete playlist object to display
+
+**Output/Side Effects:**
+- Updates `.modal-playlist-cover` image src and alt text
+- Updates `.modal-playlist-title` with playlist name
+- Updates `.modal-playlist-creator` with creator name (prefixed with "by ")
+- Clears and rebuilds `.track-list` with song items from `playlist.songs`
+- Returns nothing (void function)
+
+**DOM Target:**
+- Updates elements within: `#playlistModal` modal overlay
+
+**Data Fields Used:**
+- Playlist level: `playlistCoverUrl`, `playlistName`, `playlistCreator`, `songs`
+- Song level: `songID`, `songCoverUrl`, `songTitle`, `songArtist`, `likeCount`, `liked`
+
+**Behavior:**
+- Each track item includes a like button with current like state
+- Heart icon shows ♡ (unfilled) for unliked, ♥ (filled) for liked songs
+- Does not handle modal display (show/hide) — only populates content
+- Clears existing track list before adding new tracks to prevent duplicates
+
 ### AI Feature Spec (Milestone 8)
 [Leave blank — fill in before Milestone 8]
 
