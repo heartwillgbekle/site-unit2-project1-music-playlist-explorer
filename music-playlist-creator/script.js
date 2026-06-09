@@ -12,6 +12,10 @@ async function loadPlaylists() {
         }
         playlistsData = await response.json();
         renderPlaylistCards(playlistsData);
+
+        // Set up event listeners after cards are rendered
+        setupPlaylistCardListeners();
+        setupModalCloseListeners();
     } catch (error) {
         console.error('Error loading playlists:', error);
         displayErrorMessage('Failed to load playlists. Please try again later.');
@@ -220,6 +224,76 @@ function displayErrorMessage(errorText) {
             <p>${errorText}</p>
         </div>
     `;
+}
+
+/**
+ * Opens the modal and displays playlist details
+ * @param {Object} playlist - The playlist object to display
+ */
+function openModal(playlist) {
+    const modal = document.getElementById('playlistModal');
+
+    // Populate modal with playlist data
+    populatePlaylistModal(playlist);
+
+    // Show the modal
+    modal.removeAttribute('hidden');
+
+    // Disable page scrolling
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Closes the modal and re-enables scrolling
+ */
+function closeModal() {
+    const modal = document.getElementById('playlistModal');
+
+    // Hide the modal
+    modal.setAttribute('hidden', '');
+
+    // Re-enable page scrolling
+    document.body.style.overflow = '';
+}
+
+/**
+ * Sets up event listeners for playlist cards
+ */
+function setupPlaylistCardListeners() {
+    const playlistCards = document.querySelectorAll('.playlist-card');
+
+    playlistCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const playlistId = parseInt(card.getAttribute('data-playlist-id'));
+            const playlist = playlistsData.find(p => p.playlistID === playlistId);
+
+            if (playlist) {
+                openModal(playlist);
+            }
+        });
+    });
+}
+
+/**
+ * Sets up event listeners for modal close actions
+ */
+function setupModalCloseListeners() {
+    const modal = document.getElementById('playlistModal');
+    const backdrop = document.querySelector('.modal-backdrop');
+    const closeBtn = document.querySelector('.close-btn');
+
+    // Close when clicking backdrop
+    backdrop.addEventListener('click', closeModal);
+
+    // Close when clicking close button
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close when pressing Escape key
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hasAttribute('hidden')) {
+            closeModal();
+        }
+    });
 }
 
 // Initialize the application when DOM is loaded

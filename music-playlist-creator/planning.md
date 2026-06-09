@@ -181,6 +181,58 @@
 - Does not handle modal display (show/hide) — only populates content
 - Clears existing track list before adding new tracks to prevent duplicates
 
+#### `openModal(playlist)`
+**Purpose:** Opens the modal overlay and displays the selected playlist's details.
+
+**Input:**
+- `playlist` (playlist object) — the playlist to display in the modal
+
+**Output/Side Effects:**
+- Calls `populatePlaylistModal()` to update modal content
+- Removes `hidden` attribute from `#playlistModal`
+- Sets `body` overflow to `hidden` to prevent background scrolling
+- Returns nothing (void function)
+
+**DOM Target:**
+- Modifies: `#playlistModal` and `document.body`
+
+**Behavior:**
+- Modal slides up/fades in (animation handled by CSS)
+- Background page becomes non-scrollable
+- Modal content shows the playlist details
+
+#### `closeModal()`
+**Purpose:** Closes the modal overlay and restores page scrolling.
+
+**Input:**
+- None
+
+**Output/Side Effects:**
+- Adds `hidden` attribute to `#playlistModal`
+- Restores `body` overflow to default (re-enables scrolling)
+- Returns nothing (void function)
+
+**DOM Target:**
+- Modifies: `#playlistModal` and `document.body`
+
+**Behavior:**
+- Modal slides down/fades out (animation handled by CSS)
+- Background page scrolling is restored
+- User returns to exact scroll position before modal opened
+
+#### Event Listeners Setup
+
+**`setupPlaylistCardListeners()`**
+- Attaches click listeners to all `.playlist-card` elements
+- On click: finds matching playlist by `data-playlist-id` and calls `openModal()`
+- Called after `renderPlaylistCards()` completes
+
+**`setupModalCloseListeners()`**
+- Backdrop click: closes modal when `.modal-backdrop` is clicked
+- Close button: closes modal when `.close-btn` is clicked
+- Escape key: closes modal when Escape is pressed (only if modal is visible)
+- Called once during initialization
+
 ### AI Feature Spec (Milestone 8)
 [Leave blank — fill in before Milestone 8]
 
