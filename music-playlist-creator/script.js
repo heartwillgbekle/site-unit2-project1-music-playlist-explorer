@@ -9,7 +9,7 @@ let originalSongOrder = null;
 const AI_API_CONFIG = {
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     apiKey: typeof API_KEY !== 'undefined' ? API_KEY : '',
-    model: 'google/gemma-2-9b-it:free',
+    model: 'google/gemma-4-31b-it:free',
     timeout: 10000 // 10 seconds
 };
 
