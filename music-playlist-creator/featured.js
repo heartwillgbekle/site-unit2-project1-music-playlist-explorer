@@ -91,41 +91,48 @@ function renderFeaturedPlaylist(playlist) {
 }
 
 /**
- * Creates a single track list item element for the featured page
+ * Creates a single track card element for the featured page
  * @param {Object} song - Song object containing song data
  * @param {number} trackNumber - Track position number (1-indexed)
- * @returns {HTMLElement} - The created list item element
+ * @returns {HTMLElement} - The created card element
  */
 function createFeaturedTrackItem(song, trackNumber) {
-    const trackItem = document.createElement('li');
-    trackItem.className = 'featured-track-item';
-    trackItem.setAttribute('data-track-id', song.songID);
+    const trackCard = document.createElement('li');
+    trackCard.className = 'featured-track-card';
+    trackCard.setAttribute('data-track-id', song.songID);
 
-    // Track number
-    const numberSpan = document.createElement('span');
-    numberSpan.className = 'track-number';
-    numberSpan.textContent = trackNumber;
+    // Song cover image
+    const coverImg = document.createElement('img');
+    coverImg.className = 'featured-track-cover';
+    coverImg.src = song.songCoverUrl;
+    coverImg.alt = `${song.songTitle} cover`;
 
     // Track info container
     const trackInfo = document.createElement('div');
-    trackInfo.className = 'track-info';
+    trackInfo.className = 'featured-track-info';
+
+    // Track number
+    const numberSpan = document.createElement('span');
+    numberSpan.className = 'featured-track-number';
+    numberSpan.textContent = `#${trackNumber}`;
 
     // Track title
     const trackTitle = document.createElement('h4');
-    trackTitle.className = 'track-title';
+    trackTitle.className = 'featured-track-title';
     trackTitle.textContent = song.songTitle;
 
     // Track artist
     const trackArtist = document.createElement('p');
-    trackArtist.className = 'track-artist';
+    trackArtist.className = 'featured-track-artist';
     trackArtist.textContent = song.songArtist;
 
+    trackInfo.appendChild(numberSpan);
     trackInfo.appendChild(trackTitle);
     trackInfo.appendChild(trackArtist);
 
     // Like button
     const likeBtn = document.createElement('button');
-    likeBtn.className = 'like-btn';
+    likeBtn.className = 'featured-like-btn';
     likeBtn.setAttribute('aria-label', 'Like song');
     likeBtn.setAttribute('data-liked', song.liked.toString());
 
@@ -140,12 +147,12 @@ function createFeaturedTrackItem(song, trackNumber) {
     likeBtn.appendChild(heartIcon);
     likeBtn.appendChild(likeCount);
 
-    // Assemble track item
-    trackItem.appendChild(numberSpan);
-    trackItem.appendChild(trackInfo);
-    trackItem.appendChild(likeBtn);
+    // Assemble track card
+    trackCard.appendChild(coverImg);
+    trackCard.appendChild(trackInfo);
+    trackCard.appendChild(likeBtn);
 
-    return trackItem;
+    return trackCard;
 }
 
 /**
@@ -258,15 +265,15 @@ function toggleFeaturedSongLike(playlistID, songID, buttonElement) {
  * Sets up click event listeners for song like buttons on the featured page
  */
 function setupFeaturedLikeListeners() {
-    const likeButtons = document.querySelectorAll('.featured-track-list .like-btn');
+    const likeButtons = document.querySelectorAll('.featured-track-list .featured-like-btn');
 
     likeButtons.forEach(button => {
         button.addEventListener('click', (event) => {
             event.stopPropagation();
 
-            // Get song ID from parent track item
-            const trackItem = button.closest('.featured-track-item');
-            const songID = parseInt(trackItem.getAttribute('data-track-id'));
+            // Get song ID from parent track card
+            const trackCard = button.closest('.featured-track-card');
+            const songID = parseInt(trackCard.getAttribute('data-track-id'));
 
             // Get playlist ID from current featured playlist
             if (!currentFeaturedPlaylist) {
