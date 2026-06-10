@@ -44,6 +44,33 @@ body {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Home Link */
+.home-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.home-link:hover {
+    background: rgba(30, 215, 96, 0.2);
+    border-color: #1ED760;
+    transform: translateY(-2px);
+}
+
+.home-icon {
+    font-size: 1.125rem;
+}
+
+/* Featured Link */
 .featured-link {
     display: flex;
     align-items: center;
