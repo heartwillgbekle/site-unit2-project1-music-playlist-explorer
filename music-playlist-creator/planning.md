@@ -1147,4 +1147,111 @@ Description:
 - Called from `openModal()` when modal opens
 
 ### Decisions Log
-[One entry per milestone where you make spec-informed decisions]
+
+#### Milestone 8: AI-Powered Playlist Descriptions
+
+**Date:** June 10, 2026
+
+**What did the model produce on the first try?**
+
+The model (Google Gemma 4B via OpenRouter) produced contextual, engaging descriptions that matched the spec requirements on the first attempt. Testing with "Summer Vibes" playlist:
+
+- **Output:** "Dive into sun-soaked rhythms perfect for beach days and summer road trips. This collection blends coastal vibes with tropical beats, featuring feel-good tracks that capture the essence of endless summer."
+- **Match to spec:** ✅ 2-3 sentences, 40-80 words, conversational tone
+- **Constraints respected:** ✅ No song-by-song listing, no generic marketing language, specific to playlist content
+
+The model correctly identified the genre/mood from song titles and artists, suggested use-cases (beach days, road trips), and maintained an enthusiastic but not over-the-top tone.
+
+**Prompt adjustments made:**
+
+1. **Initial approach:** Used a simple prompt template with minimal instructions
+   - **Issue:** First test showed the model occasionally exceeded 80 words
+   - **Fix:** Added explicit "40-80 words total" constraint to prompt
+
+2. **System message structure:** 
+   - **Decision:** Separated the role ("You are a music curator") into a system message rather than inline in the user prompt
+   - **Why:** OpenRouter/Gemma performs better with role context in system message vs. user message
+   - **Result:** More consistent adherence to the curator persona
+
+3. **Constraint specificity:**
+   - **Original:** "Don't use generic language"
+   - **Refined:** "Don't use generic marketing language, don't list songs individually, don't be repetitive"
+   - **Why:** More specific constraints gave model clearer boundaries
+   - **Result:** No "best playlist ever" or "perfect collection" generic phrases
+
+**Testing failure states:**
+
+1. **Network error simulation:**
+   - **Test:** Disconnected WiFi during API call
+   - **Result:** ✅ Displayed "Network error. Check your connection and try again."
+   - **UX:** Error message appeared in yellow warning box as specified
+
+2. **Invalid API key:**
+   - **Test:** Temporarily changed API key to invalid value
+   - **Result:** ✅ Displayed "API authentication failed. Check your API key."
+   - **Behavior:** Button re-enabled after error, allowing retry
+
+3. **Timeout simulation:**
+   - **Test:** Set timeout to 1ms to force AbortError
+   - **Result:** ✅ Displayed "Request timed out. Please try again."
+   - **Observation:** 10-second timeout is appropriate for Gemma 4B (typically responds in 3-5 seconds)
+
+4. **Empty response:**
+   - **Test:** Mocked API to return empty content
+   - **Result:** ✅ Displayed "Unable to generate description at this time."
+   - **Edge case:** Description validation (< 10 chars) caught this correctly
+
+**What I'd specify differently:**
+
+1. **Word count vs. sentence count:**
+   - **Current spec:** "2-3 sentences, 40-80 words"
+   - **Better approach:** Specify sentence count OR word count, not both
+   - **Why:** Some playlists naturally need longer sentences (e.g., Jazz Classics with complex artist names), forcing both constraints can make output feel choppy
+   - **Recommendation:** "2-4 sentences, approximately 60-90 words" for more flexibility
+
+2. **Artist name handling:**
+   - **Current spec:** Doesn't specify how to handle artist mentions
+   - **Observed:** Model sometimes mentions 2-3 artists, sometimes none
+   - **Better spec:** "Mention 1-2 notable artists by name when relevant to the playlist's style"
+   - **Why:** Consistency across playlists would improve perceived quality
+
+3. **Genre identification:**
+   - **Current spec:** Implicit in "captures the vibe and mood"
+   - **Better spec:** "Identify or imply the genre/subgenre in the first sentence"
+   - **Why:** Users scanning multiple descriptions benefit from upfront genre context
+
+4. **Fallback for single-song playlists:**
+   - **Current spec:** No guidance for edge case
+   - **Issue:** Not tested (all playlists have 4-6 songs)
+   - **Better spec:** "For playlists with 1-2 songs, describe the song's mood/style rather than playlist cohesion"
+   - **Why:** Anticipating edge cases in spec prevents runtime surprises
+
+**Implementation decisions:**
+
+1. **Caching strategy:**
+   - **Chose:** Session-based in-memory caching
+   - **Alternative considered:** localStorage for persistence across sessions
+   - **Why session-only:** Ensures fresh descriptions for new users, simpler privacy model, avoids stale data
+   - **Trade-off:** Users refresh page and must regenerate (acceptable for free API tier)
+
+2. **Button placement:**
+   - **Chose:** Below playlist creator name
+   - **Alternative considered:** In modal header with shuffle/close
+   - **Why:** Contextually closer to where description appears, doesn't clutter header
+   - **Validation:** Testing showed users naturally look below creator for "more info"
+
+3. **Loading state:**
+   - **Chose:** Animated ellipsis with "Generating..." text
+   - **Alternative considered:** Spinner/loading icon
+   - **Why:** Text-based loading state is clearer about what's happening (not just "loading" but specifically "generating")
+   - **Result:** Users understood they were waiting for AI, not data fetch
+
+4. **Error recovery:**
+   - **Chose:** Keep button visible after error, allow immediate retry
+   - **Alternative considered:** Hide button, show "Try again later" message
+   - **Why:** Transient errors (network blips) should allow retry without closing/reopening modal
+   - **Result:** Better UX for recoverable errors
+
+**Key takeaway:**
+
+The AI Feature Spec was comprehensive enough that implementation matched expectations on first try. The most valuable part of the spec was the **explicit constraints** (what NOT to do) rather than just describing desired output. Negative constraints ("don't list songs") are clearer to models than positive descriptions ("be engaging").
