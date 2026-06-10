@@ -11,6 +11,11 @@ let undoTimeout = null;
 let currentFormMode = 'create'; // 'create' or 'edit'
 let currentEditingID = null;
 
+// Search & Sort state
+let currentSearch = '';
+let currentSort = 'date'; // 'name', 'likes', or 'date'
+let searchTimeout = null;
+
 // AI API Configuration
 // API key is loaded from config.js (which is gitignored)
 const AI_API_CONFIG = {
@@ -1000,10 +1005,8 @@ function createNewPlaylist(playlistData) {
     // Add to data
     playlistsData.push(newPlaylist);
 
-    // Re-render grid
-    renderPlaylistCards(playlistsData);
-    setupPlaylistCardListeners();
-    setupPlaylistLikeListeners();
+    // Re-render grid with current search/sort
+    renderFilteredAndSortedPlaylists();
 
     // Highlight new card
     const newCard = document.querySelector(`[data-playlist-id="${newPlaylist.playlistID}"]`);
@@ -1042,10 +1045,8 @@ function editPlaylist(playlistID, updatedData) {
     playlist.playlistCoverUrl = updatedData.playlistCoverUrl;
     playlist.songs = updatedData.songs;
 
-    // Re-render grid
-    renderPlaylistCards(playlistsData);
-    setupPlaylistCardListeners();
-    setupPlaylistLikeListeners();
+    // Re-render grid with current search/sort
+    renderFilteredAndSortedPlaylists();
 
     // Highlight updated card
     const updatedCard = document.querySelector(`[data-playlist-id="${playlistID}"]`);
@@ -1125,14 +1126,10 @@ function deletePlaylist(playlistID) {
     if (card) {
         card.classList.add('fade-out');
         setTimeout(() => {
-            renderPlaylistCards(playlistsData);
-            setupPlaylistCardListeners();
-            setupPlaylistLikeListeners();
+            renderFilteredAndSortedPlaylists();
         }, 300);
     } else {
-        renderPlaylistCards(playlistsData);
-        setupPlaylistCardListeners();
-        setupPlaylistLikeListeners();
+        renderFilteredAndSortedPlaylists();
     }
 
     // Close modal if it's for this playlist
@@ -1161,10 +1158,8 @@ function undoDelete() {
     // Re-add playlist at original index
     playlistsData.splice(index, 0, playlist);
 
-    // Re-render
-    renderPlaylistCards(playlistsData);
-    setupPlaylistCardListeners();
-    setupPlaylistLikeListeners();
+    // Re-render with current search/sort
+    renderFilteredAndSortedPlaylists();
 
     // Highlight restored card
     const restoredCard = document.querySelector(`[data-playlist-id="${playlist.playlistID}"]`);
@@ -1254,8 +1249,234 @@ function setupCRUDListeners() {
     }
 }
 
+// ===== SEARCH & SORT FUNCTIONS =====
+
+/**
+ * Filters playlists by search query
+ * @param {string} query - Search query (case-insensitive)
+ * @returns {Array} - Filtered playlists
+ */
+function filterPlaylists(query) {
+    if (!query || query.trim() === '') {
+        return playlistsData;
+    }
+
+    const lowerQuery = query.toLowerCase().trim();
+
+    return playlistsData.filter(playlist => {
+        const name = playlist.playlistName.toLowerCase();
+        const creator = playlist.playlistCreator.toLowerCase();
+        return name.includes(lowerQuery) || creator.includes(lowerQuery);
+    });
+}
+
+/**
+ * Sorts playlists by specified criteria
+ * @param {Array} playlists - Playlists to sort
+ * @param {string} sortBy - 'name', 'likes', or 'date'
+ * @returns {Array} - Sorted playlists (new array)
+ */
+function sortPlaylists(playlists, sortBy) {
+    const sorted = [...playlists];
+
+    switch (sortBy) {
+        case 'name':
+            sorted.sort((a, b) => a.playlistName.localeCompare(b.playlistName));
+            break;
+        case 'likes':
+            sorted.sort((a, b) => {
+                if (b.likeCount !== a.likeCount) {
+                    return b.likeCount - a.likeCount;
+                }
+                // Tie-breaker: alphabetical by name
+                return a.playlistName.localeCompare(b.playlistName);
+            });
+            break;
+        case 'date':
+            sorted.sort((a, b) => b.playlistID - a.playlistID);
+            break;
+    }
+
+    return sorted;
+}
+
+/**
+ * Renders playlists with current search and sort applied
+ */
+function renderFilteredAndSortedPlaylists() {
+    let filtered = filterPlaylists(currentSearch);
+    let sorted = sortPlaylists(filtered, currentSort);
+
+    if (sorted.length === 0 && currentSearch) {
+        // Show empty state
+        const container = document.querySelector('.playlist-cards');
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🔍</div>
+                <h3 class="empty-state-title">No playlists found</h3>
+                <p class="empty-state-message">
+                    No playlists match <span class="empty-state-query">"${currentSearch}"</span>
+                </p>
+                <a href="#" class="clear-search-link" id="clearSearchLink">Clear search</a>
+            </div>
+        `;
+
+        // Add clear search link handler
+        const clearLink = document.getElementById('clearSearchLink');
+        if (clearLink) {
+            clearLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                clearSearch();
+            });
+        }
+    } else {
+        renderPlaylistCards(sorted);
+        setupPlaylistCardListeners();
+        setupPlaylistLikeListeners();
+    }
+}
+
+/**
+ * Handles search input with debouncing
+ * @param {Event} event - Input event
+ */
+function handleSearchInput(event) {
+    const query = event.target.value;
+    currentSearch = query;
+
+    // Show/hide clear button
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (query.length > 0) {
+        clearBtn.removeAttribute('hidden');
+    } else {
+        clearBtn.setAttribute('hidden', '');
+    }
+
+    // Debounce search (300ms)
+    if (searchTimeout) clearTimeout(searchTimeout);
+
+    searchTimeout = setTimeout(() => {
+        renderFilteredAndSortedPlaylists();
+    }, 300);
+}
+
+/**
+ * Clears search and shows all playlists
+ */
+function clearSearch() {
+    currentSearch = '';
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
+
+    if (searchInput) searchInput.value = '';
+    if (clearBtn) clearBtn.setAttribute('hidden', '');
+
+    renderFilteredAndSortedPlaylists();
+}
+
+/**
+ * Handles sort option selection
+ * @param {string} sortBy - 'name', 'likes', or 'date'
+ */
+function handleSortChange(sortBy) {
+    currentSort = sortBy;
+
+    // Update button text
+    const sortBtn = document.getElementById('sortBtn');
+    const sortLabel = sortBtn.querySelector('.sort-label');
+
+    switch (sortBy) {
+        case 'name':
+            sortLabel.textContent = 'Sort: Name (A-Z)';
+            break;
+        case 'likes':
+            sortLabel.textContent = 'Sort: Most Liked';
+            break;
+        case 'date':
+            sortLabel.textContent = 'Sort: Date Added';
+            break;
+    }
+
+    // Update active checkmark
+    document.querySelectorAll('.sort-option').forEach(option => {
+        if (option.getAttribute('data-sort') === sortBy) {
+            option.classList.add('active');
+        } else {
+            option.classList.remove('active');
+        }
+    });
+
+    // Close dropdown
+    toggleSortDropdown(false);
+
+    // Re-render with new sort
+    renderFilteredAndSortedPlaylists();
+}
+
+/**
+ * Toggles sort dropdown visibility
+ * @param {boolean} show - Optional force show/hide
+ */
+function toggleSortDropdown(show) {
+    const dropdown = document.getElementById('sortDropdown');
+    const sortBtn = document.getElementById('sortBtn');
+
+    if (show === undefined) {
+        show = dropdown.hasAttribute('hidden');
+    }
+
+    if (show) {
+        dropdown.removeAttribute('hidden');
+        sortBtn.setAttribute('aria-expanded', 'true');
+    } else {
+        dropdown.setAttribute('hidden', '');
+        sortBtn.setAttribute('aria-expanded', 'false');
+    }
+}
+
+/**
+ * Sets up event listeners for search and sort
+ */
+function setupSearchAndSortListeners() {
+    // Search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearchInput);
+    }
+
+    // Clear search button
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', clearSearch);
+    }
+
+    // Sort button
+    const sortBtn = document.getElementById('sortBtn');
+    if (sortBtn) {
+        sortBtn.addEventListener('click', () => toggleSortDropdown());
+    }
+
+    // Sort options
+    const sortOptions = document.querySelectorAll('.sort-option');
+    sortOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const sortBy = option.getAttribute('data-sort');
+            handleSortChange(sortBy);
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+        const sortContainer = document.querySelector('.sort-container');
+        if (sortContainer && !sortContainer.contains(event.target)) {
+            toggleSortDropdown(false);
+        }
+    });
+}
+
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     loadPlaylists();
     setupCRUDListeners();
+    setupSearchAndSortListeners();
 });

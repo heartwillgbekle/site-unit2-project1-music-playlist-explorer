@@ -14,6 +14,45 @@
     <header class="app-header">
         <nav class="main-nav">
             <h1 class="app-title">Music Playlist Explorer</h1>
+
+            <!-- Search & Sort Controls -->
+            <div class="controls-container">
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text"
+                           id="searchInput"
+                           class="search-input"
+                           placeholder="Search playlists..."
+                           aria-label="Search playlists">
+                    <button class="clear-search-btn" id="clearSearchBtn" hidden aria-label="Clear search">
+                        <span>×</span>
+                    </button>
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="sort-container">
+                    <button class="sort-btn" id="sortBtn" aria-label="Sort playlists" aria-haspopup="true">
+                        <span class="sort-label">Sort: Date Added</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="sort-dropdown" id="sortDropdown" hidden role="menu">
+                        <button class="sort-option" data-sort="name" role="menuitem">
+                            <span class="checkmark">✓</span>
+                            <span>Name (A-Z)</span>
+                        </button>
+                        <button class="sort-option" data-sort="likes" role="menuitem">
+                            <span class="checkmark">✓</span>
+                            <span>Most Liked</span>
+                        </button>
+                        <button class="sort-option active" data-sort="date" role="menuitem">
+                            <span class="checkmark">✓</span>
+                            <span>Date Added (Newest)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <a href="featured.html" class="featured-link">
                 <span class="star-icon">⭐</span>
                 Featured

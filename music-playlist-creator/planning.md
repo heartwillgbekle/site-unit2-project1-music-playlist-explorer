@@ -1480,6 +1480,191 @@ let undoTimeout = null;           // NEW: Timer for undo expiration
 - Clears timeout
 - Hides toast
 
+---
+
+## Search & Sort Features
+
+### Search Functionality
+
+**UI Components:**
+- Search bar in header (between title and Featured link)
+- Text input with magnifying glass icon
+- "Clear" button (× icon) - only visible when text entered
+- Live search (filters as you type)
+
+**Search Behavior:**
+- **Case-insensitive**: Converts query and data to lowercase
+- **Searches**: Playlist name AND creator name
+- **Updates live**: Filters grid on every keystroke (debounced 300ms)
+- **Clear button**: Resets search, shows all playlists
+- **Empty state**: Shows "No playlists match '[query]'" message
+- **Works with CRUD**: Searches include added/edited playlists, excludes deleted
+
+**Function Spec: `filterPlaylists(query)`**
+
+**Purpose:** Filters playlists by name or creator.
+
+**Input:**
+- `query` (string) - Search query
+
+**Output:**
+- Returns array of matching playlists
+
+**Behavior:**
+- Converts query to lowercase
+- Filters playlistsData where:
+  - `playlistName.toLowerCase().includes(query)` OR
+  - `playlistCreator.toLowerCase().includes(query)`
+- Returns filtered array
+- If query is empty, returns all playlists
+
+**Function Spec: `handleSearchInput(event)`**
+
+**Purpose:** Handles search input with debouncing.
+
+**Input:**
+- `event` (Event) - Input event
+
+**Behavior:**
+- Gets search query from input
+- Debounces for 300ms (prevents excessive re-renders)
+- Calls `filterPlaylists(query)`
+- Calls `renderPlaylistCards(filtered)`
+- Shows/hides clear button based on query length
+- Shows empty state if no matches
+
+**Function Spec: `clearSearch()`**
+
+**Purpose:** Clears search and shows all playlists.
+
+**Behavior:**
+- Clears input value
+- Hides clear button
+- Calls `renderPlaylistCards(playlistsData)`
+- Reapplies current sort if active
+
+---
+
+### Sort Functionality
+
+**UI Components:**
+- Sort dropdown in header (after search bar)
+- Button shows current sort: "Sort: Name (A-Z)"
+- Dropdown menu with 3 options:
+  - "Name (A-Z)"
+  - "Most Liked"
+  - "Date Added (Newest)"
+- Checkmark next to active sort
+
+**Sort Options:**
+
+1. **Name (A-Z)**
+   - Primary: `playlistName.localeCompare()` (ascending)
+   - Tie-breaker: None needed (names are unique or close enough)
+
+2. **Most Liked**
+   - Primary: `likeCount` (descending, highest first)
+   - Tie-breaker: `playlistName.localeCompare()` (ascending)
+
+3. **Date Added (Newest)**
+   - Primary: `playlistID` (descending, newest has highest ID)
+   - Tie-breaker: None needed (IDs are unique)
+
+**Function Spec: `sortPlaylists(playlists, sortBy)`**
+
+**Purpose:** Sorts playlist array by specified criteria.
+
+**Input:**
+- `playlists` (array) - Playlists to sort
+- `sortBy` (string) - 'name', 'likes', or 'date'
+
+**Output:**
+- Returns sorted array (new array, original unchanged)
+
+**Behavior:**
+- Creates copy with spread operator
+- Sorts based on sortBy:
+  - 'name': `a.playlistName.localeCompare(b.playlistName)`
+  - 'likes': `b.likeCount - a.likeCount` (desc), tie: name
+  - 'date': `b.playlistID - a.playlistID` (desc)
+- Returns sorted array
+
+**Function Spec: `handleSortChange(sortBy)`**
+
+**Purpose:** Applies sort and updates UI.
+
+**Input:**
+- `sortBy` (string) - Sort option selected
+
+**Behavior:**
+- Stores `currentSort` in global state
+- Updates dropdown button text
+- Updates checkmarks in menu
+- Gets current filtered playlists (respect search)
+- Calls `sortPlaylists(filtered, sortBy)`
+- Calls `renderPlaylistCards(sorted)`
+- Closes dropdown menu
+
+---
+
+### Combined Search + Sort Behavior
+
+**Interaction:**
+- Search filters, then sort orders the filtered results
+- Changing sort re-applies to current search results
+- Clearing search shows all playlists with current sort applied
+- Creating/editing playlist respects both search and sort
+- Deleting playlist removes from filtered/sorted view
+
+**State Management:**
+```javascript
+let currentSearch = '';     // Current search query
+let currentSort = 'date';   // Current sort: 'name', 'likes', 'date'
+let searchTimeout = null;   // Debounce timer
+```
+
+**Render Pipeline:**
+```
+playlistsData (all)
+  ↓
+filterPlaylists(currentSearch)
+  ↓
+sortPlaylists(filtered, currentSort)
+  ↓
+renderPlaylistCards(sorted)
+```
+
+---
+
+### UI Styling
+
+**Search Bar:**
+```css
+- Container: Flex row, max-width 400px
+- Input: Rounded left (8px), gray border
+- Icon: Magnifying glass (🔍) left of input
+- Clear button: Gray circle, × icon, fade in when text present
+- Focus: Green border (#1ED760)
+```
+
+**Sort Dropdown:**
+```css
+- Button: Rounded, gray border, dropdown arrow
+- Text: "Sort: [option]"
+- Dropdown: Absolute, white background, shadow
+- Options: Hover gray background
+- Active: Green checkmark (✓)
+```
+
+**Empty State:**
+```css
+- Center of grid
+- Gray text, 1.5rem
+- Icon: 🔍 or "No results"
+- Message: "No playlists match '[query]'"
+- "Clear search" link
+```
+
 ### Decisions Log
 
 #### Milestone 8: AI-Powered Playlist Descriptions
