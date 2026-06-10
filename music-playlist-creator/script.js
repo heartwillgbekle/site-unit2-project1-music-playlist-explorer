@@ -6,8 +6,9 @@ let originalSongOrder = null;
 
 // AI API Configuration
 const AI_API_CONFIG = {
-    endpoint: 'https://api.openai.com/v1/chat/completions', // Default to OpenAI - can be changed
-    apiKey: '', // TO BE SET BY USER
+    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+    apiKey: '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',
+    model: 'google/gemma-2-9b-it:free',
     timeout: 10000 // 10 seconds
 };
 
@@ -271,21 +272,25 @@ async function getPlaylistDescription(playlist) {
     const timeoutId = setTimeout(() => controller.abort(), AI_API_CONFIG.timeout);
 
     try {
-        // Call AI API (OpenAI format - adjust for other APIs)
+        // Call OpenRouter API
         const response = await fetch(AI_API_CONFIG.endpoint, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${AI_API_CONFIG.apiKey}`
+                'Authorization': `Bearer ${AI_API_CONFIG.apiKey}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [{
-                    role: 'user',
-                    content: prompt
-                }],
-                max_tokens: 150,
-                temperature: 0.7
+                model: AI_API_CONFIG.model,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a music curator writing playlist descriptions for a music streaming app.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
             }),
             signal: controller.signal
         });
@@ -308,7 +313,7 @@ async function getPlaylistDescription(playlist) {
         // Parse response
         const data = await response.json();
 
-        // Extract description (OpenAI format - adjust for other APIs)
+        // Extract description from OpenRouter response
         let description = data.choices?.[0]?.message?.content || '';
         description = description.trim();
 
