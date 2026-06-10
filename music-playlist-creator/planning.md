@@ -984,7 +984,167 @@ music-playlist-creator/
 - [ ] Verify accessibility (keyboard, screen reader)
 
 ### AI Feature Spec (Milestone 8)
-[Leave blank — fill in before Milestone 8]
+
+#### Overview
+Generate contextual playlist descriptions using AI to enhance the user experience and provide insight into each playlist's theme, mood, and musical style.
+
+#### AI Model Configuration
+
+**Role:** Music playlist curator and copywriter
+
+**Task:** Generate an engaging, concise description for a music playlist that captures its vibe, mood, and theme.
+
+**Inputs:**
+- `playlistName` (string) - e.g., "Summer Vibes"
+- `playlistCreator` (string) - e.g., "DJ Sunshine"
+- `songs` (array of objects) - Each containing:
+  - `songTitle` (string)
+  - `songArtist` (string)
+
+**Prompt Template:**
+```
+You are a music curator writing playlist descriptions for a music streaming app.
+
+Generate a 2-3 sentence description for the following playlist:
+
+Playlist: "{playlistName}"
+Creator: {playlistCreator}
+Songs:
+{songs.map(song => `- "${song.songTitle}" by ${song.songArtist}`).join('\n')}
+
+Write a description that:
+1. Captures the overall vibe and mood (based on song titles and artists)
+2. Suggests use-cases or listening scenarios
+3. Highlights notable artists or musical styles
+4. Uses conversational, enthusiastic tone
+5. Is 40-80 words total
+
+Do NOT:
+- List songs individually in the description
+- Use generic marketing language
+- Include technical music terms
+- Be repetitive or clichéd
+
+Description:
+```
+
+**Output Format:**
+- Plain text string
+- 2-3 sentences
+- 40-80 words
+- No markdown or special formatting
+- Ends with period
+
+**Constraints:**
+- Keep it conversational and engaging
+- Match the tone to the playlist genre/mood
+- Avoid repetitive phrases across different playlists
+- Be specific to the playlist's actual content
+- No explicit content or controversial topics
+
+**Failure Behavior:**
+- API call fails: Display "Description unavailable. Please try again later."
+- Timeout: Display "Request timed out. Please try again."
+- Rate limit: Display "Too many requests. Please wait a moment and try again."
+- Invalid response: Display "Unable to generate description at this time."
+- Network error: Display "Network error. Check your connection and try again."
+
+#### Function Spec: `getPlaylistDescription(playlist)`
+
+**Purpose:** Calls the AI API to generate a description for a given playlist.
+
+**Input:**
+- `playlist` (object) - Complete playlist object from `playlistsData`
+
+**Output:**
+- Returns: `Promise<string>` - Resolves to generated description text
+- Throws: Error with user-friendly message on failure
+
+**API Call Structure:**
+1. Check cache first (`playlist.cachedDescription`)
+2. Build prompt from template using `buildDescriptionPrompt()`
+3. Call AI API with fetch() using POST method
+4. Handle HTTP errors (401/403/429/5xx) with specific messages
+5. Parse JSON response and extract description text
+6. Validate description exists and is non-empty (min 10 chars)
+7. Cache result in `playlist.cachedDescription`
+8. Return description string
+
+**Error Handling:**
+- Network errors: Try-catch with `fetch()`, show "Network error" message
+- HTTP errors (4xx/5xx): Check `response.ok`, map status codes to messages
+  - 401/403: "API authentication failed. Check your API key."
+  - 429: "Too many requests. Please wait a moment and try again."
+  - 500+: "Server error. Please try again later."
+- Timeout: Use `AbortController` with 10-second timeout
+- Invalid JSON: Try-catch on `response.json()`, fallback message
+- Empty response: Validate description exists and length >= 10
+- AbortError: "Request timed out. Please try again."
+
+**Edge Cases:**
+- Empty playlist (no songs): Skip description or return generic fallback
+- Very short playlist (1-2 songs): Prompt still works with limited data
+- Duplicate API calls: Cache check prevents redundant requests
+- Modal closed during API call: AbortController cancels request
+
+#### Function Spec: `buildDescriptionPrompt(playlist)`
+
+**Purpose:** Constructs the AI prompt string from playlist data.
+
+**Input:**
+- `playlist` (object) - Playlist object containing name, creator, songs array
+
+**Output:**
+- Returns: `string` - Formatted prompt ready for API
+
+**Behavior:**
+- Maps playlist.songs to formatted list: `- "Title" by Artist`
+- Joins song list with newlines
+- Injects playlist name, creator, and song list into template
+- Returns complete prompt string
+
+#### Function Spec: `handleGetDescription()`
+
+**Purpose:** Handles "Get Description" button click event.
+
+**Input:**
+- None (reads from global `currentPlaylist`)
+
+**Output:**
+- Returns: `void`
+- Side effects: Updates DOM with description or error message
+
+**Behavior:**
+1. Guard clause: exits if `currentPlaylist` is null
+2. Gets button, description, and error elements from DOM
+3. Resets UI (hides description and error)
+4. Shows loading state (disable button, add "loading" class, change text to "Generating")
+5. Calls `await getPlaylistDescription(currentPlaylist)`
+6. On success:
+   - Displays description in `.playlist-description` element
+   - Removes `hidden` attribute
+   - Hides button (`display: none`)
+7. On error:
+   - Logs error to console
+   - Displays error message in `.description-error` element
+   - Removes `hidden` attribute
+8. Finally block: resets loading state (enable button, remove class, restore text)
+
+#### Function Spec: `setupDescriptionListener()`
+
+**Purpose:** Attaches click event listener to "Get Description" button.
+
+**Input:**
+- None (queries DOM for button)
+
+**Output:**
+- Returns: `void`
+- Side effect: Attaches event listener
+
+**Behavior:**
+- Queries DOM for `.get-description-btn`
+- If button exists, attaches `handleGetDescription` as click handler
+- Called from `openModal()` when modal opens
 
 ### Decisions Log
 [One entry per milestone where you make spec-informed decisions]

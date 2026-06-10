@@ -4,6 +4,13 @@ let currentPlaylist = null;
 let isShuffled = false;
 let originalSongOrder = null;
 
+// AI API Configuration
+const AI_API_CONFIG = {
+    endpoint: 'https://api.openai.com/v1/chat/completions', // Default to OpenAI - can be changed
+    apiKey: '', // TO BE SET BY USER
+    timeout: 10000 // 10 seconds
+};
+
 /**
  * Fetches playlist data from data.json
  */
@@ -202,6 +209,192 @@ function populatePlaylistModal(playlist) {
         const trackItem = createTrackItem(song);
         trackList.appendChild(trackItem);
     });
+}
+
+/**
+ * Builds the AI prompt for playlist description generation
+ * @param {Object} playlist - Playlist object
+ * @returns {string} - Formatted prompt string
+ */
+function buildDescriptionPrompt(playlist) {
+    const songList = playlist.songs
+        .map(song => `- "${song.songTitle}" by ${song.songArtist}`)
+        .join('\n');
+
+    return `You are a music curator writing playlist descriptions for a music streaming app.
+
+Generate a 2-3 sentence description for the following playlist:
+
+Playlist: "${playlist.playlistName}"
+Creator: ${playlist.playlistCreator}
+Songs:
+${songList}
+
+Write a description that:
+1. Captures the overall vibe and mood (based on song titles and artists)
+2. Suggests use-cases or listening scenarios
+3. Highlights notable artists or musical styles
+4. Uses conversational, enthusiastic tone
+5. Is 40-80 words total
+
+Do NOT:
+- List songs individually in the description
+- Use generic marketing language
+- Include technical music terms
+- Be repetitive or clichéd
+
+Description:`;
+}
+
+/**
+ * Calls AI API to generate playlist description
+ * @param {Object} playlist - Playlist object
+ * @returns {Promise<string>} - Generated description
+ * @throws {Error} - User-friendly error message
+ */
+async function getPlaylistDescription(playlist) {
+    // Check cache first
+    if (playlist.cachedDescription) {
+        return playlist.cachedDescription;
+    }
+
+    // Check if API key is set
+    if (!AI_API_CONFIG.apiKey) {
+        throw new Error('API key not configured. Please set your AI API key.');
+    }
+
+    // Build prompt
+    const prompt = buildDescriptionPrompt(playlist);
+
+    // Set up timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), AI_API_CONFIG.timeout);
+
+    try {
+        // Call AI API (OpenAI format - adjust for other APIs)
+        const response = await fetch(AI_API_CONFIG.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AI_API_CONFIG.apiKey}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [{
+                    role: 'user',
+                    content: prompt
+                }],
+                max_tokens: 150,
+                temperature: 0.7
+            }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        // Handle HTTP errors
+        if (!response.ok) {
+            if (response.status === 429) {
+                throw new Error('Too many requests. Please wait a moment and try again.');
+            } else if (response.status >= 500) {
+                throw new Error('Server error. Please try again later.');
+            } else if (response.status === 401 || response.status === 403) {
+                throw new Error('API authentication failed. Check your API key.');
+            } else {
+                throw new Error('Failed to generate description. Please try again.');
+            }
+        }
+
+        // Parse response
+        const data = await response.json();
+
+        // Extract description (OpenAI format - adjust for other APIs)
+        let description = data.choices?.[0]?.message?.content || '';
+        description = description.trim();
+
+        // Validate description
+        if (!description || description.length < 10) {
+            throw new Error('Unable to generate description at this time.');
+        }
+
+        // Cache in memory
+        playlist.cachedDescription = description;
+
+        return description;
+
+    } catch (error) {
+        clearTimeout(timeoutId);
+
+        // Handle specific error types
+        if (error.name === 'AbortError') {
+            throw new Error('Request timed out. Please try again.');
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            throw new Error('Network error. Check your connection and try again.');
+        } else {
+            // Re-throw error with message (already user-friendly)
+            throw error;
+        }
+    }
+}
+
+/**
+ * Handles "Get Description" button click
+ */
+async function handleGetDescription() {
+    if (!currentPlaylist) {
+        console.error('No playlist is currently open');
+        return;
+    }
+
+    const button = document.querySelector('.get-description-btn');
+    const descriptionElem = document.querySelector('.playlist-description');
+    const errorElem = document.querySelector('.description-error');
+
+    // Reset UI
+    descriptionElem.setAttribute('hidden', '');
+    errorElem.setAttribute('hidden', '');
+
+    // Show loading state
+    button.disabled = true;
+    button.classList.add('loading');
+    const originalText = button.querySelector('.button-text').textContent;
+    button.querySelector('.button-text').textContent = 'Generating';
+
+    try {
+        // Call API
+        const description = await getPlaylistDescription(currentPlaylist);
+
+        // Display description
+        descriptionElem.textContent = description;
+        descriptionElem.removeAttribute('hidden');
+
+        // Hide button after successful generation
+        button.style.display = 'none';
+
+    } catch (error) {
+        console.error('Error generating description:', error);
+
+        // Show error message
+        errorElem.textContent = error.message;
+        errorElem.removeAttribute('hidden');
+
+    } finally {
+        // Reset loading state
+        button.disabled = false;
+        button.classList.remove('loading');
+        button.querySelector('.button-text').textContent = originalText;
+    }
+}
+
+/**
+ * Sets up click event listener for "Get Description" button
+ */
+function setupDescriptionListener() {
+    const button = document.querySelector('.get-description-btn');
+
+    if (button) {
+        button.addEventListener('click', handleGetDescription);
+    }
 }
 
 /**
@@ -454,6 +647,23 @@ function openModal(playlist) {
     // Set up event listeners
     setupSongLikeListeners();
     setupShuffleListener();
+    setupDescriptionListener();
+
+    // Reset description UI
+    const descriptionBtn = document.querySelector('.get-description-btn');
+    const descriptionElem = document.querySelector('.playlist-description');
+    const errorElem = document.querySelector('.description-error');
+
+    if (descriptionBtn) descriptionBtn.style.display = 'inline-flex';
+    if (descriptionElem) descriptionElem.setAttribute('hidden', '');
+    if (errorElem) errorElem.setAttribute('hidden', '');
+
+    // Show cached description if available
+    if (playlist.cachedDescription) {
+        descriptionElem.textContent = playlist.cachedDescription;
+        descriptionElem.removeAttribute('hidden');
+        descriptionBtn.style.display = 'none';
+    }
 
     // Show the modal
     modal.removeAttribute('hidden');
