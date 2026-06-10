@@ -3,14 +3,14 @@
     "playlistID": 1,
     "playlistName": "Summer Vibes",
     "playlistCreator": "DJ Sunshine",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 101,
         "songTitle": "Sunset Dreams",
         "songArtist": "The Coastliners",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1495954484750-af469f2f9be5?w=400&h=400&fit=crop",
         "likeCount": 127,
         "liked": false
       },
@@ -18,7 +18,7 @@
         "songID": 102,
         "songTitle": "Tropical Nights",
         "songArtist": "Island Rhythms",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=400&fit=crop",
         "likeCount": 89,
         "liked": false
       },
@@ -26,7 +26,7 @@
         "songID": 103,
         "songTitle": "Beach Party",
         "songArtist": "Wave Makers",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400&h=400&fit=crop",
         "likeCount": 201,
         "liked": false
       },
@@ -34,7 +34,7 @@
         "songID": 104,
         "songTitle": "Golden Hour",
         "songArtist": "Sunset Boulevard",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
         "likeCount": 156,
         "liked": false
       },
@@ -42,7 +42,7 @@
         "songID": 105,
         "songTitle": "Ocean Breeze",
         "songArtist": "Coral Reef Band",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400&h=400&fit=crop&sat=-30",
         "likeCount": 94,
         "liked": false
       },
@@ -50,7 +50,7 @@
         "songID": 106,
         "songTitle": "Summer Love",
         "songArtist": "Heartstrings",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=400&fit=crop",
         "likeCount": 312,
         "liked": false
       }
@@ -61,14 +61,14 @@
     "playlistID": 2,
     "playlistName": "Chill Beats",
     "playlistCreator": "LoFi Master",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 201,
         "songTitle": "Midnight Study",
         "songArtist": "Calm Collective",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=400&fit=crop",
         "likeCount": 245,
         "liked": false
       },
@@ -76,7 +76,7 @@
         "songID": 202,
         "songTitle": "Rainy Day",
         "songArtist": "Lo-Fi Cafe",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400&h=400&fit=crop",
         "likeCount": 178,
         "liked": false
       },
@@ -84,7 +84,7 @@
         "songID": 203,
         "songTitle": "Coffee Shop",
         "songArtist": "Morning Brew",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
         "likeCount": 134,
         "liked": false
       },
@@ -92,7 +92,7 @@
         "songID": 204,
         "songTitle": "Lazy Sunday",
         "songArtist": "Weekend Vibes",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400&h=400&fit=crop",
         "likeCount": 198,
         "liked": false
       }
@@ -103,14 +103,14 @@
     "playlistID": 3,
     "playlistName": "Workout Mix",
     "playlistCreator": "Fitness Beats",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 301,
         "songTitle": "Run Wild",
         "songArtist": "Power Surge",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=400&h=400&fit=crop",
         "likeCount": 432,
         "liked": false
       },
@@ -118,7 +118,7 @@
         "songID": 302,
         "songTitle": "Beast Mode",
         "songArtist": "Gym Warriors",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=400&fit=crop",
         "likeCount": 567,
         "liked": false
       },
@@ -126,7 +126,7 @@
         "songID": 303,
         "songTitle": "Push Harder",
         "songArtist": "Iron Will",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=400&fit=crop",
         "likeCount": 389,
         "liked": false
       },
@@ -134,7 +134,7 @@
         "songID": 304,
         "songTitle": "No Limits",
         "songArtist": "Endurance Squad",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&h=400&fit=crop",
         "likeCount": 421,
         "liked": false
       },
@@ -142,7 +142,7 @@
         "songID": 305,
         "songTitle": "Victory Lap",
         "songArtist": "Champion Mindset",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=400&h=400&fit=crop",
         "likeCount": 356,
         "liked": false
       }
@@ -153,14 +153,14 @@
     "playlistID": 4,
     "playlistName": "Jazz Classics",
     "playlistCreator": "Miles Ahead",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 401,
         "songTitle": "Blue Note",
         "songArtist": "Smooth Quartet",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&h=400&fit=crop",
         "likeCount": 289,
         "liked": false
       },
@@ -168,7 +168,7 @@
         "songID": 402,
         "songTitle": "Midnight in Paris",
         "songArtist": "The Jazz Collective",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&h=400&fit=crop",
         "likeCount": 312,
         "liked": false
       },
@@ -176,7 +176,7 @@
         "songID": 403,
         "songTitle": "Swingin' Time",
         "songArtist": "Big Band Ensemble",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=400&fit=crop",
         "likeCount": 245,
         "liked": false
       },
@@ -184,7 +184,7 @@
         "songID": 404,
         "songTitle": "Velvet Evening",
         "songArtist": "Satin Sounds",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
         "likeCount": 198,
         "liked": false
       }
@@ -195,14 +195,14 @@
     "playlistID": 5,
     "playlistName": "Rock Anthems",
     "playlistCreator": "Guitar Heroes",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 501,
         "songTitle": "Thunder Road",
         "songArtist": "Electric Storm",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop",
         "likeCount": 678,
         "liked": false
       },
@@ -210,7 +210,7 @@
         "songID": 502,
         "songTitle": "Breaking Free",
         "songArtist": "Rebel Nation",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1519683384663-12e8f8b26631?w=400&h=400&fit=crop",
         "likeCount": 543,
         "liked": false
       },
@@ -218,7 +218,7 @@
         "songID": 503,
         "songTitle": "Shattered Dreams",
         "songArtist": "Broken Chains",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&h=400&fit=crop",
         "likeCount": 432,
         "liked": false
       },
@@ -226,7 +226,7 @@
         "songID": 504,
         "songTitle": "Rise Up",
         "songArtist": "Phoenix Rising",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&h=400&fit=crop",
         "likeCount": 589,
         "liked": false
       },
@@ -234,7 +234,7 @@
         "songID": 505,
         "songTitle": "Wild Heart",
         "songArtist": "Free Spirit",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1501612780327-45045538702b?w=400&h=400&fit=crop",
         "likeCount": 467,
         "liked": false
       }
@@ -245,14 +245,14 @@
     "playlistID": 6,
     "playlistName": "Electronic Dreams",
     "playlistCreator": "Synth Wave",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 601,
         "songTitle": "Neon Lights",
         "songArtist": "Cyber Pulse",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=400&h=400&fit=crop",
         "likeCount": 392,
         "liked": false
       },
@@ -260,7 +260,7 @@
         "songID": 602,
         "songTitle": "Digital Dreams",
         "songArtist": "Future Bass",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=400&fit=crop",
         "likeCount": 445,
         "liked": false
       },
@@ -268,7 +268,7 @@
         "songID": 603,
         "songTitle": "Circuit Breaker",
         "songArtist": "Voltage Drop",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1563089145-599997674d42?w=400&h=400&fit=crop",
         "likeCount": 378,
         "liked": false
       },
@@ -276,7 +276,7 @@
         "songID": 604,
         "songTitle": "Synthetic Love",
         "songArtist": "Binary Hearts",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=400&h=400&fit=crop",
         "likeCount": 412,
         "liked": false
       }
@@ -287,14 +287,14 @@
     "playlistID": 7,
     "playlistName": "Acoustic Sessions",
     "playlistCreator": "Unplugged Collective",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1510915228340-29c85a43dcfe?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 701,
         "songTitle": "Wooden Heart",
         "songArtist": "Folk Stories",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1525201548942-d8732f6617a0?w=400&h=400&fit=crop",
         "likeCount": 234,
         "liked": false
       },
@@ -302,7 +302,7 @@
         "songID": 702,
         "songTitle": "Mountain Road",
         "songArtist": "Wandering Souls",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop&sat=-20",
         "likeCount": 289,
         "liked": false
       },
@@ -310,7 +310,7 @@
         "songID": 703,
         "songTitle": "Campfire Stories",
         "songArtist": "Around the Fire",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400&h=400&fit=crop",
         "likeCount": 267,
         "liked": false
       },
@@ -318,7 +318,7 @@
         "songID": 704,
         "songTitle": "Simple Things",
         "songArtist": "Back to Basics",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop",
         "likeCount": 198,
         "liked": false
       }
@@ -329,14 +329,14 @@
     "playlistID": 8,
     "playlistName": "Hip Hop Hits",
     "playlistCreator": "Rap Revolution",
-    "playlistCoverUrl": "assets/img/playlist.png",
+    "playlistCoverUrl": "https://images.unsplash.com/photo-1485579149621-3123dd979885?w=400&h=400&fit=crop",
     "likeCount": 5,
     "songs": [
       {
         "songID": 801,
         "songTitle": "Street Dreams",
         "songArtist": "Urban Legends",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&sat=-10",
         "likeCount": 723,
         "liked": false
       },
@@ -344,7 +344,7 @@
         "songID": 802,
         "songTitle": "King of the Block",
         "songArtist": "Crown Holder",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&h=400&fit=crop",
         "likeCount": 612,
         "liked": false
       },
@@ -352,7 +352,7 @@
         "songID": 803,
         "songTitle": "Money Moves",
         "songArtist": "Cash Flow",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1556817411-31ae72fa3ea0?w=400&h=400&fit=crop",
         "likeCount": 834,
         "liked": false
       },
@@ -360,7 +360,7 @@
         "songID": 804,
         "songTitle": "Rise to Fame",
         "songArtist": "Star Status",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=400&fit=crop",
         "likeCount": 567,
         "liked": false
       },
@@ -368,7 +368,7 @@
         "songID": 805,
         "songTitle": "Mic Check",
         "songArtist": "Flow Masters",
-        "songCoverUrl": "assets/img/song.png",
+        "songCoverUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop",
         "likeCount": 489,
         "liked": false
       }
