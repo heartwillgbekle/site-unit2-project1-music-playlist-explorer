@@ -5,9 +5,10 @@ let isShuffled = false;
 let originalSongOrder = null;
 
 // AI API Configuration
+// API key is loaded from config.js (which is gitignored)
 const AI_API_CONFIG = {
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    apiKey: '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',
+    apiKey: typeof API_KEY !== 'undefined' ? API_KEY : '',
     model: 'google/gemma-2-9b-it:free',
     timeout: 10000 // 10 seconds
 };
