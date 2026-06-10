@@ -33,6 +33,102 @@
         <p>Made with ♥ for music lovers</p>
     </footer>
 
+    <!-- Floating Action Button (Add Playlist) -->
+    <button class="fab-button" aria-label="Create new playlist" title="Create New Playlist">
+        <span class="fab-icon">+</span>
+    </button>
+
+    <!-- Playlist Form Modal -->
+    <div class="form-modal-overlay" id="playlistFormModal" hidden>
+        <div class="form-modal-content">
+            <header class="form-modal-header">
+                <h2 class="form-title">Create New Playlist</h2>
+                <button class="form-close-btn" aria-label="Close form">✕</button>
+            </header>
+
+            <form class="playlist-form" id="playlistForm">
+                <!-- Step 1: Basic Info -->
+                <div class="form-section">
+                    <h3 class="section-title">Basic Information</h3>
+
+                    <div class="form-group">
+                        <label for="playlistName">Playlist Name *</label>
+                        <input type="text" id="playlistName" name="playlistName"
+                               placeholder="Summer Vibes" required minlength="3" maxlength="50">
+                        <span class="form-error" id="nameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="playlistCreator">Creator Name *</label>
+                        <input type="text" id="playlistCreator" name="playlistCreator"
+                               placeholder="DJ Sunshine" required minlength="2" maxlength="30">
+                        <span class="form-error" id="creatorError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="playlistCoverUrl">Cover Image URL</label>
+                        <input type="url" id="playlistCoverUrl" name="playlistCoverUrl"
+                               placeholder="https://example.com/cover.jpg">
+                        <span class="form-hint">Optional - leave blank for default cover</span>
+                        <span class="form-error" id="coverError"></span>
+                    </div>
+                </div>
+
+                <!-- Step 2: Songs -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Songs</h3>
+                        <button type="button" class="add-song-btn">
+                            <span>+</span> Add Song
+                        </button>
+                    </div>
+
+                    <div class="songs-container" id="songsContainer">
+                        <!-- Song rows will be added dynamically -->
+                        <div class="song-row" data-song-index="0">
+                            <div class="song-inputs">
+                                <input type="text" name="songTitle[]" placeholder="Song Title *"
+                                       required minlength="1" maxlength="100">
+                                <input type="text" name="songArtist[]" placeholder="Artist *"
+                                       required minlength="1" maxlength="100">
+                            </div>
+                            <button type="button" class="remove-song-btn" aria-label="Remove song">
+                                <span>×</span>
+                            </button>
+                        </div>
+                    </div>
+                    <span class="form-error" id="songsError"></span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary form-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <span class="submit-text">Create Playlist</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div class="confirmation-dialog-overlay" id="confirmDialog" hidden>
+        <div class="confirmation-dialog">
+            <h3 class="confirm-title">Delete Playlist?</h3>
+            <p class="confirm-message"></p>
+            <div class="confirm-actions">
+                <button class="btn-secondary confirm-cancel">Cancel</button>
+                <button class="btn-danger confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Undo Toast -->
+    <div class="undo-toast" id="undoToast" hidden>
+        <span class="toast-message"></span>
+        <button class="toast-undo-btn">Undo</button>
+    </div>
+
     <!-- Modal Overlay - Outside main section -->
     <div class="modal-overlay" id="playlistModal" hidden>
         <div class="modal-backdrop"></div>

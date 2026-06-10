@@ -1146,6 +1146,340 @@ Description:
 - If button exists, attaches `handleGetDescription` as click handler
 - Called from `openModal()` when modal opens
 
+---
+
+## Stretch Features: Playlist Management (CRUD)
+
+### Feature Overview
+
+Enable users to Create, Read, Update, and Delete playlists with a modern, intuitive interface. All operations persist in-memory during the session (no backend/localStorage required for MVP).
+
+### Add New Playlist
+
+**UI Components:**
+- Floating Action Button (FAB) with "+" icon in bottom-right corner
+- Slide-up form modal with smooth animations
+- Multi-step form: Basic Info → Add Songs → Preview
+
+**Form Structure:**
+```
+Step 1: Basic Info
+- Playlist Name (text input, required)
+- Creator Name (text input, required)
+- Cover Image (URL input or file upload preview)
+
+Step 2: Add Songs
+- Dynamic song list (add/remove rows)
+- Each song: Title (required), Artist (required), Duration (optional)
+- "Add Another Song" button
+
+Step 3: Preview
+- Show preview of new playlist card
+- "Create Playlist" button
+- "Go Back" to edit
+```
+
+**Function Spec: `createNewPlaylist(formData)`**
+- Generates new playlistID (max existing ID + 1)
+- Sets default values: likeCount: 0, liked: false, cachedDescription: null
+- Assigns default cover if none provided
+- Validates: name and creator non-empty, at least 1 song
+- Adds to `playlistsData` array
+- Re-renders grid with new playlist highlighted (fade-in animation)
+- Returns: new playlist object or validation errors
+
+### Edit Existing Playlist
+
+**UI Components:**
+- Edit button (pencil icon) on each playlist card (top-right corner)
+- Same form modal as Create, but pre-populated
+- Title: "Edit Playlist: [Name]"
+
+**Behavior:**
+- Click edit → form opens with existing data
+- Songs list populated from current playlist.songs
+- Save button updates existing playlist in-place
+- Grid and modal reflect changes immediately
+- If modal is open for edited playlist, update modal content
+
+**Function Spec: `editPlaylist(playlistID, updatedData)`**
+- Finds playlist by ID in `playlistsData`
+- Validates updated data (same rules as create)
+- Updates playlist object fields
+- Preserves likeCount, liked, cachedDescription (unless user changes name/songs)
+- If playlist name/songs change, clear cachedDescription
+- Re-renders affected card with slide animation
+- If modal is open, calls `populatePlaylistModal()` to update
+- Returns: updated playlist or validation errors
+
+### Delete Playlist
+
+**UI Components:**
+- Delete button (trash icon) on each playlist card (top-right, next to edit)
+- Confirmation dialog: "Delete [Playlist Name]? This cannot be undone."
+- Undo toast notification (3 seconds): "Playlist deleted. [Undo]"
+
+**Behavior:**
+- Click delete → confirmation modal appears
+- Confirm → playlist fades out from grid
+- Removed from `playlistsData` array
+- Toast shows "Undo" option for 3 seconds
+- If undo clicked within 3 seconds, playlist restored
+- If modal is open for deleted playlist, close modal
+
+**Function Spec: `deletePlaylist(playlistID, allowUndo = true)`**
+- Finds playlist by ID
+- If allowUndo, stores in `deletionStack` with timestamp
+- Removes from `playlistsData`
+- Re-renders grid without deleted card (fade-out animation)
+- Shows undo toast if allowUndo
+- If modal is open for this playlist, calls `closeModal()`
+- After 3 seconds, removes from deletionStack (permanent)
+- Returns: deleted playlist object (for undo)
+
+**Function Spec: `undoDelete()`**
+- Gets most recent deletion from `deletionStack`
+- Re-adds to `playlistsData` at original index
+- Re-renders grid with fade-in animation
+- Clears undo toast
+- Returns: restored playlist or null if stack empty
+
+---
+
+### Form Validation Rules
+
+**Playlist Name:**
+- Required, 3-50 characters
+- Error: "Playlist name must be 3-50 characters"
+
+**Creator Name:**
+- Required, 2-30 characters
+- Error: "Creator name must be 2-30 characters"
+
+**Cover Image URL:**
+- Optional, must be valid URL format if provided
+- Default: Use placeholder image if empty
+- Error: "Invalid image URL"
+
+**Songs:**
+- Minimum: 1 song required
+- Maximum: 20 songs (prevent UI overflow)
+- Song Title: Required, 1-100 characters
+- Song Artist: Required, 1-100 characters
+- Song Duration: Optional, format "MM:SS" if provided
+- Error: "Each song must have a title and artist"
+
+---
+
+### UI Styling & Animations
+
+**Floating Action Button (FAB):**
+```css
+- Position: fixed bottom-right (24px from edges)
+- Size: 64px circle
+- Background: Green gradient (#1ED760 → #1ab558)
+- Icon: White "+" (30px)
+- Shadow: 0 8px 24px rgba(30, 215, 96, 0.4)
+- Hover: Scale 1.1, rotate 90deg
+- Click: Pulse animation
+```
+
+**Form Modal:**
+```css
+- Full-screen overlay (rgba(0,0,0,0.85))
+- Form container: 600px max-width, centered
+- Background: White, rounded 16px
+- Slide-up animation (from bottom)
+- Close button: Top-right "×"
+```
+
+**Card Action Buttons (Edit/Delete):**
+```css
+- Hidden by default, show on card hover
+- Position: absolute top-right
+- Size: 32px circles
+- Edit: Blue (#007AFF), pencil icon
+- Delete: Red (#FF3B30), trash icon
+- Fade-in on hover, scale on button hover
+```
+
+**Confirmation Dialog:**
+```css
+- Centered modal, 400px width
+- Background: White
+- Title: Bold, 1.5rem
+- Message: Gray, 1rem
+- Buttons: Cancel (gray) / Confirm (red)
+- Shake animation on open
+```
+
+**Undo Toast:**
+```css
+- Position: fixed bottom-center
+- Background: Dark (#2d2d2d)
+- Color: White
+- Padding: 16px 24px
+- Border-radius: 8px
+- Slide-up animation
+- "Undo" button: Green, underlined
+- Auto-dismiss after 3 seconds
+```
+
+---
+
+### Data Flow
+
+**Create Playlist:**
+```
+User clicks FAB → Form modal opens → Fill form → Submit
+  ↓
+Validate data → Generate ID → Add to playlistsData
+  ↓
+Re-render grid → Scroll to new playlist → Highlight (pulse animation)
+  ↓
+Close form modal
+```
+
+**Edit Playlist:**
+```
+User clicks Edit icon → Form modal opens (pre-filled) → Modify data → Save
+  ↓
+Validate data → Update playlist in playlistsData
+  ↓
+Re-render affected card → Update modal if open
+  ↓
+Close form modal → Flash updated card (green border pulse)
+```
+
+**Delete Playlist:**
+```
+User clicks Delete icon → Confirmation dialog → Confirm
+  ↓
+Store in deletionStack → Remove from playlistsData → Re-render grid
+  ↓
+Show undo toast (3 seconds) → If undo: restore, else: permanent
+  ↓
+If modal open: close modal
+```
+
+---
+
+### State Management
+
+**Global Variables:**
+```javascript
+let playlistsData = [];           // Existing
+let currentPlaylist = null;       // Existing
+let deletionStack = [];           // NEW: For undo functionality
+let nextPlaylistID = 9;           // NEW: Auto-increment ID (starts at 9)
+let undoTimeout = null;           // NEW: Timer for undo expiration
+```
+
+**Playlist ID Generation:**
+- Start with max existing ID + 1
+- Auto-increment on each create
+- IDs never reused (even after delete)
+
+---
+
+### Function Specs
+
+#### `openPlaylistForm(mode = 'create', playlistID = null)`
+
+**Purpose:** Opens the playlist form modal in create or edit mode.
+
+**Input:**
+- `mode` (string) - "create" or "edit"
+- `playlistID` (number|null) - ID of playlist to edit (null for create)
+
+**Behavior:**
+- Creates/shows form modal overlay
+- If mode = "edit", finds playlist by ID and pre-fills form
+- If mode = "create", clears all form fields
+- Sets up form submission handler
+- Attaches close button listener
+- Disables body scroll
+
+#### `submitPlaylistForm(formData, mode)`
+
+**Purpose:** Handles form submission for create/edit operations.
+
+**Input:**
+- `formData` (object) - Form field values
+- `mode` (string) - "create" or "edit"
+
+**Behavior:**
+- Validates all form data
+- If validation fails, shows inline error messages
+- If mode = "create", calls `createNewPlaylist()`
+- If mode = "edit", calls `editPlaylist()`
+- Closes form modal on success
+- Shows success toast
+
+#### `createNewPlaylist(playlistData)`
+
+**Purpose:** Adds a new playlist to the data array and grid.
+
+**Input:**
+- `playlistData` (object) - Validated playlist fields
+
+**Output:**
+- Returns new playlist object
+
+**Behavior:**
+- Generates new ID (nextPlaylistID++)
+- Sets defaults: likeCount: 0, liked: false
+- Adds to `playlistsData`
+- Re-renders grid
+- Scrolls to and highlights new card
+- Returns playlist object
+
+#### `editPlaylist(playlistID, updatedData)`
+
+**Purpose:** Updates an existing playlist in-place.
+
+**Input:**
+- `playlistID` (number)
+- `updatedData` (object) - Updated fields
+
+**Output:**
+- Returns updated playlist object
+
+**Behavior:**
+- Finds and updates playlist in `playlistsData`
+- Clears cachedDescription if name/songs changed
+- Re-renders affected card
+- Updates modal if open
+- Returns playlist
+
+#### `deletePlaylist(playlistID, allowUndo = true)`
+
+**Purpose:** Removes playlist with optional undo.
+
+**Input:**
+- `playlistID` (number)
+- `allowUndo` (boolean)
+
+**Behavior:**
+- Shows confirmation dialog
+- On confirm, stores in deletionStack
+- Removes from `playlistsData`
+- Re-renders grid (fade-out)
+- Shows undo toast
+- Sets 3-second timeout
+- Closes modal if open
+
+#### `undoDelete()`
+
+**Purpose:** Restores most recently deleted playlist.
+
+**Behavior:**
+- Gets last item from deletionStack
+- Re-adds to `playlistsData`
+- Re-renders grid (fade-in)
+- Clears timeout
+- Hides toast
+
 ### Decisions Log
 
 #### Milestone 8: AI-Powered Playlist Descriptions

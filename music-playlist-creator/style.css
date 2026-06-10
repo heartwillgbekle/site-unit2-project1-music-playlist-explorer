@@ -100,7 +100,7 @@ body {
     flex-direction: column;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .playlist-card::before {
@@ -1130,3 +1130,561 @@ body {
         padding: 0.875rem 1.5rem;
     }
 }
+
+/* ===== PLAYLIST MANAGEMENT FEATURES ===== */
+
+/* Card Action Buttons (Edit/Delete) */
+.card-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.playlist-card:hover .card-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.card-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.edit-btn {
+    background: #007AFF;
+    color: #ffffff;
+}
+
+.edit-btn:hover {
+    background: #0051D5;
+    transform: scale(1.1);
+}
+
+.delete-btn {
+    background: #FF3B30;
+    color: #ffffff;
+}
+
+.delete-btn:hover {
+    background: #CC2E24;
+    transform: scale(1.1);
+}
+
+/* Floating Action Button */
+.fab-button {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1ED760 0%, #1ab558 100%);
+    border: none;
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 300;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(30, 215, 96, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fab-button:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 12px 32px rgba(30, 215, 96, 0.5);
+}
+
+.fab-button:active {
+    transform: scale(0.95);
+}
+
+.fab-icon {
+    line-height: 1;
+}
+
+/* Form Modal */
+.form-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.form-modal-overlay[hidden] {
+    display: none;
+}
+
+.form-modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Form Header */
+.form-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e5e5e7;
+}
+
+.form-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.form-close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #6e6e73;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.form-close-btn:hover {
+    background: #f5f5f5;
+    color: #1a1a1a;
+    transform: rotate(90deg);
+}
+
+/* Playlist Form */
+.playlist-form {
+    padding: 2rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: #1a1a1a;
+}
+
+.add-song-btn {
+    background: #1ED760;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.add-song-btn:hover {
+    background: #1ab558;
+    transform: translateY(-2px);
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e5e7;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #1ED760;
+    box-shadow: 0 0 0 3px rgba(30, 215, 96, 0.1);
+}
+
+.form-hint {
+    display: block;
+    font-size: 0.8125rem;
+    color: #6e6e73;
+    margin-top: 0.25rem;
+}
+
+.form-error {
+    display: block;
+    font-size: 0.8125rem;
+    color: #FF3B30;
+    margin-top: 0.25rem;
+    min-height: 1.2rem;
+}
+
+/* Song Rows */
+.songs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.song-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.song-inputs {
+    flex: 1;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.song-inputs input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e5e7;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.song-inputs input:focus {
+    outline: none;
+    border-color: #1ED760;
+    box-shadow: 0 0 0 3px rgba(30, 215, 96, 0.1);
+}
+
+.remove-song-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #e5e5e7;
+    background: #ffffff;
+    color: #6e6e73;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.125rem;
+}
+
+.remove-song-btn:hover {
+    background: #FF3B30;
+    color: #ffffff;
+    border-color: #FF3B30;
+    transform: scale(1.1);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e5e7;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: #1ED760;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #1ab558;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 215, 96, 0.3);
+}
+
+.btn-secondary {
+    background: #f5f5f5;
+    color: #1a1a1a;
+    border: 1px solid #e5e5e7;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e7;
+}
+
+.btn-danger {
+    background: #FF3B30;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background: #CC2E24;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+/* Confirmation Dialog */
+.confirmation-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.confirmation-dialog-overlay[hidden] {
+    display: none;
+}
+
+.confirmation-dialog {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+    animation: shake 0.5s ease-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.confirm-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    color: #1a1a1a;
+}
+
+.confirm-message {
+    font-size: 1rem;
+    color: #6e6e73;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.5;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* Undo Toast */
+.undo-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2d2d2d;
+    color: #ffffff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    animation: slideUpToast 0.3s ease-out;
+}
+
+.undo-toast[hidden] {
+    display: none;
+}
+
+@keyframes slideUpToast {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.toast-message {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.toast-undo-btn {
+    background: none;
+    border: none;
+    color: #1ED760;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.toast-undo-btn:hover {
+    color: #1ab558;
+}
+
+/* Animations for card operations */
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes cardFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+@keyframes cardHighlight {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-color: #e5e5e7;
+    }
+    50% {
+        box-shadow: 0 8px 24px rgba(30, 215, 96, 0.4);
+        border-color: #1ED760;
+    }
+}
+
+.playlist-card.fade-in {
+    animation: cardFadeIn 0.5s ease-out;
+}
+
+.playlist-card.fade-out {
+    animation: cardFadeOut 0.3s ease-out forwards;
+}
+
+.playlist-card.highlight {
+    animation: cardHighlight 1s ease-in-out;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .fab-button {
+        width: 56px;
+        height: 56px;
+        bottom: 16px;
+        right: 16px;
+        font-size: 28px;
+    }
+
+    .form-modal-content {
+        max-height: 95vh;
+    }
+
+    .song-inputs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+    }
+
+    .card-actions {
+        opacity: 1;
+        transform: translateY(0);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 4px;
+        border-radius: 8px;
+    }
+}
+

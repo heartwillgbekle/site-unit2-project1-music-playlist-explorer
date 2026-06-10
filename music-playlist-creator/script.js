@@ -4,6 +4,13 @@ let currentPlaylist = null;
 let isShuffled = false;
 let originalSongOrder = null;
 
+// CRUD feature state
+let deletionStack = [];
+let nextPlaylistID = 9; // Start after existing 8 playlists
+let undoTimeout = null;
+let currentFormMode = 'create'; // 'create' or 'edit'
+let currentEditingID = null;
+
 // AI API Configuration
 // API key is loaded from config.js (which is gitignored)
 const AI_API_CONFIG = {
@@ -113,7 +120,35 @@ function createPlaylistCard(playlist) {
     likesBtn.appendChild(heartIcon);
     likesBtn.appendChild(likeCount);
 
+    // Create action buttons container (Edit/Delete)
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'card-actions';
+
+    // Edit button
+    const editBtn = document.createElement('button');
+    editBtn.className = 'card-action-btn edit-btn';
+    editBtn.setAttribute('aria-label', 'Edit playlist');
+    editBtn.innerHTML = '✏️';
+    editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openPlaylistForm('edit', playlist.playlistID);
+    });
+
+    // Delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'card-action-btn delete-btn';
+    deleteBtn.setAttribute('aria-label', 'Delete playlist');
+    deleteBtn.innerHTML = '🗑️';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showDeleteConfirmation(playlist.playlistID);
+    });
+
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(deleteBtn);
+
     // Append all elements to card
+    card.appendChild(actionsDiv);
     card.appendChild(coverImg);
     card.appendChild(infoDiv);
     card.appendChild(likesBtn);
@@ -739,7 +774,488 @@ function setupModalCloseListeners() {
     });
 }
 
+// ===== PLAYLIST MANAGEMENT (CRUD) FUNCTIONS =====
+
+/**
+ * Opens the playlist form modal in create or edit mode
+ * @param {string} mode - 'create' or 'edit'
+ * @param {number|null} playlistID - ID of playlist to edit (null for create)
+ */
+function openPlaylistForm(mode = 'create', playlistID = null) {
+    const modal = document.getElementById('playlistFormModal');
+    const form = document.getElementById('playlistForm');
+    const title = document.querySelector('.form-title');
+    const submitBtn = form.querySelector('button[type="submit"] .submit-text');
+
+    currentFormMode = mode;
+    currentEditingID = playlistID;
+
+    // Update UI based on mode
+    if (mode === 'edit') {
+        const playlist = playlistsData.find(p => p.playlistID === playlistID);
+        if (!playlist) return;
+
+        title.textContent = `Edit: ${playlist.playlistName}`;
+        submitBtn.textContent = 'Save Changes';
+
+        // Pre-fill form
+        document.getElementById('playlistName').value = playlist.playlistName;
+        document.getElementById('playlistCreator').value = playlist.playlistCreator;
+        document.getElementById('playlistCoverUrl').value = playlist.playlistCoverUrl || '';
+
+        // Pre-fill songs
+        const songsContainer = document.getElementById('songsContainer');
+        songsContainer.innerHTML = '';
+        playlist.songs.forEach((song, index) => {
+            addSongRow(song.songTitle, song.songArtist, index);
+        });
+    } else {
+        title.textContent = 'Create New Playlist';
+        submitBtn.textContent = 'Create Playlist';
+        form.reset();
+
+        // Reset to one empty song row
+        const songsContainer = document.getElementById('songsContainer');
+        songsContainer.innerHTML = '';
+        addSongRow('', '', 0);
+    }
+
+    // Show modal
+    modal.removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Adds a song input row to the form
+ * @param {string} title - Pre-filled title
+ * @param {string} artist - Pre-filled artist
+ * @param {number} index - Row index
+ */
+function addSongRow(title = '', artist = '', index = 0) {
+    const songsContainer = document.getElementById('songsContainer');
+
+    const songRow = document.createElement('div');
+    songRow.className = 'song-row';
+    songRow.setAttribute('data-song-index', index);
+
+    songRow.innerHTML = `
+        <div class="song-inputs">
+            <input type="text" name="songTitle[]" placeholder="Song Title *"
+                   required minlength="1" maxlength="100" value="${title}">
+            <input type="text" name="songArtist[]" placeholder="Artist *"
+                   required minlength="1" maxlength="100" value="${artist}">
+        </div>
+        <button type="button" class="remove-song-btn" aria-label="Remove song">
+            <span>×</span>
+        </button>
+    `;
+
+    // Add remove handler
+    const removeBtn = songRow.querySelector('.remove-song-btn');
+    removeBtn.addEventListener('click', () => {
+        if (songsContainer.children.length > 1) {
+            songRow.remove();
+        }
+    });
+
+    songsContainer.appendChild(songRow);
+}
+
+/**
+ * Closes the playlist form modal
+ */
+function closePlaylistForm() {
+    const modal = document.getElementById('playlistFormModal');
+    modal.setAttribute('hidden', '');
+    document.body.style.overflow = '';
+
+    // Reset form
+    document.getElementById('playlistForm').reset();
+    currentFormMode = 'create';
+    currentEditingID = null;
+}
+
+/**
+ * Validates form data
+ * @param {FormData} formData - Form data to validate
+ * @returns {Object} - {valid: boolean, errors: object}
+ */
+function validatePlaylistForm(formData) {
+    const errors = {};
+
+    const name = formData.get('playlistName').trim();
+    const creator = formData.get('playlistCreator').trim();
+    const songTitles = formData.getAll('songTitle[]');
+    const songArtists = formData.getAll('songArtist[]');
+
+    // Validate name
+    if (name.length < 3 || name.length > 50) {
+        errors.name = 'Playlist name must be 3-50 characters';
+    }
+
+    // Validate creator
+    if (creator.length < 2 || creator.length > 30) {
+        errors.creator = 'Creator name must be 2-30 characters';
+    }
+
+    // Validate songs
+    if (songTitles.length === 0) {
+        errors.songs = 'At least one song is required';
+    } else if (songTitles.length > 20) {
+        errors.songs = 'Maximum 20 songs allowed';
+    } else {
+        for (let i = 0; i < songTitles.length; i++) {
+            if (!songTitles[i].trim() || !songArtists[i].trim()) {
+                errors.songs = 'Each song must have a title and artist';
+                break;
+            }
+        }
+    }
+
+    return {
+        valid: Object.keys(errors).length === 0,
+        errors
+    };
+}
+
+/**
+ * Handles form submission (create or edit)
+ * @param {Event} event - Submit event
+ */
+async function handlePlaylistFormSubmit(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    // Validate
+    const validation = validatePlaylistForm(formData);
+
+    // Clear previous errors
+    document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+
+    if (!validation.valid) {
+        // Show errors
+        if (validation.errors.name) {
+            document.getElementById('nameError').textContent = validation.errors.name;
+        }
+        if (validation.errors.creator) {
+            document.getElementById('creatorError').textContent = validation.errors.creator;
+        }
+        if (validation.errors.songs) {
+            document.getElementById('songsError').textContent = validation.errors.songs;
+        }
+        return;
+    }
+
+    // Build playlist object
+    const playlistData = {
+        playlistName: formData.get('playlistName').trim(),
+        playlistCreator: formData.get('playlistCreator').trim(),
+        playlistCoverUrl: formData.get('playlistCoverUrl').trim() || 'assets/img/playlist.png',
+        songs: []
+    };
+
+    // Build songs array
+    const songTitles = formData.getAll('songTitle[]');
+    const songArtists = formData.getAll('songArtist[]');
+
+    for (let i = 0; i < songTitles.length; i++) {
+        playlistData.songs.push({
+            songID: Date.now() + i, // Temporary ID
+            songTitle: songTitles[i].trim(),
+            songArtist: songArtists[i].trim(),
+            songCoverUrl: 'assets/img/song.png',
+            likeCount: 0,
+            liked: false
+        });
+    }
+
+    // Create or update
+    if (currentFormMode === 'create') {
+        createNewPlaylist(playlistData);
+    } else {
+        editPlaylist(currentEditingID, playlistData);
+    }
+
+    closePlaylistForm();
+}
+
+/**
+ * Creates a new playlist
+ * @param {Object} playlistData - Playlist data
+ */
+function createNewPlaylist(playlistData) {
+    const newPlaylist = {
+        playlistID: nextPlaylistID++,
+        playlistName: playlistData.playlistName,
+        playlistCreator: playlistData.playlistCreator,
+        playlistCoverUrl: playlistData.playlistCoverUrl,
+        likeCount: 0,
+        liked: false,
+        songs: playlistData.songs,
+        cachedDescription: null
+    };
+
+    // Add to data
+    playlistsData.push(newPlaylist);
+
+    // Re-render grid
+    renderPlaylistCards(playlistsData);
+    setupPlaylistCardListeners();
+    setupPlaylistLikeListeners();
+
+    // Highlight new card
+    const newCard = document.querySelector(`[data-playlist-id="${newPlaylist.playlistID}"]`);
+    if (newCard) {
+        newCard.classList.add('fade-in', 'highlight');
+        newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        setTimeout(() => {
+            newCard.classList.remove('fade-in', 'highlight');
+        }, 2000);
+    }
+
+    showToast(`"${newPlaylist.playlistName}" created successfully!`, false);
+}
+
+/**
+ * Edits an existing playlist
+ * @param {number} playlistID - ID of playlist to edit
+ * @param {Object} updatedData - Updated playlist data
+ */
+function editPlaylist(playlistID, updatedData) {
+    const playlist = playlistsData.find(p => p.playlistID === playlistID);
+    if (!playlist) return;
+
+    // Check if name or songs changed (clear cached description)
+    const nameChanged = playlist.playlistName !== updatedData.playlistName;
+    const songsChanged = JSON.stringify(playlist.songs) !== JSON.stringify(updatedData.songs);
+
+    if (nameChanged || songsChanged) {
+        playlist.cachedDescription = null;
+    }
+
+    // Update playlist
+    playlist.playlistName = updatedData.playlistName;
+    playlist.playlistCreator = updatedData.playlistCreator;
+    playlist.playlistCoverUrl = updatedData.playlistCoverUrl;
+    playlist.songs = updatedData.songs;
+
+    // Re-render grid
+    renderPlaylistCards(playlistsData);
+    setupPlaylistCardListeners();
+    setupPlaylistLikeListeners();
+
+    // Highlight updated card
+    const updatedCard = document.querySelector(`[data-playlist-id="${playlistID}"]`);
+    if (updatedCard) {
+        updatedCard.classList.add('highlight');
+        updatedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        setTimeout(() => {
+            updatedCard.classList.remove('highlight');
+        }, 2000);
+    }
+
+    // Update modal if open
+    if (currentPlaylist && currentPlaylist.playlistID === playlistID) {
+        currentPlaylist = playlist;
+        populatePlaylistModal(playlist);
+    }
+
+    showToast(`"${playlist.playlistName}" updated successfully!`, false);
+}
+
+/**
+ * Shows delete confirmation dialog
+ * @param {number} playlistID - ID of playlist to delete
+ */
+function showDeleteConfirmation(playlistID) {
+    const playlist = playlistsData.find(p => p.playlistID === playlistID);
+    if (!playlist) return;
+
+    const dialog = document.getElementById('confirmDialog');
+    const message = dialog.querySelector('.confirm-message');
+
+    message.textContent = `Are you sure you want to delete "${playlist.playlistName}"? This action cannot be undone.`;
+
+    // Show dialog
+    dialog.removeAttribute('hidden');
+
+    // Set up confirmation handler (one-time)
+    const confirmBtn = dialog.querySelector('.confirm-delete');
+    const cancelBtn = dialog.querySelector('.confirm-cancel');
+
+    const handleConfirm = () => {
+        deletePlaylist(playlistID);
+        dialog.setAttribute('hidden', '');
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+    };
+
+    const handleCancel = () => {
+        dialog.setAttribute('hidden', '');
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+    };
+
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+}
+
+/**
+ * Deletes a playlist with undo option
+ * @param {number} playlistID - ID of playlist to delete
+ */
+function deletePlaylist(playlistID) {
+    const index = playlistsData.findIndex(p => p.playlistID === playlistID);
+    if (index === -1) return;
+
+    const playlist = playlistsData[index];
+
+    // Store for undo
+    deletionStack.push({ playlist, index, timestamp: Date.now() });
+
+    // Remove from data
+    playlistsData.splice(index, 1);
+
+    // Fade out and remove
+    const card = document.querySelector(`[data-playlist-id="${playlistID}"]`);
+    if (card) {
+        card.classList.add('fade-out');
+        setTimeout(() => {
+            renderPlaylistCards(playlistsData);
+            setupPlaylistCardListeners();
+            setupPlaylistLikeListeners();
+        }, 300);
+    } else {
+        renderPlaylistCards(playlistsData);
+        setupPlaylistCardListeners();
+        setupPlaylistLikeListeners();
+    }
+
+    // Close modal if it's for this playlist
+    if (currentPlaylist && currentPlaylist.playlistID === playlistID) {
+        closeModal();
+    }
+
+    // Show undo toast
+    showToast(`"${playlist.playlistName}" deleted.`, true);
+
+    // Set timeout to make deletion permanent
+    if (undoTimeout) clearTimeout(undoTimeout);
+    undoTimeout = setTimeout(() => {
+        deletionStack = [];
+    }, 3000);
+}
+
+/**
+ * Undoes the most recent deletion
+ */
+function undoDelete() {
+    if (deletionStack.length === 0) return;
+
+    const { playlist, index } = deletionStack.pop();
+
+    // Re-add playlist at original index
+    playlistsData.splice(index, 0, playlist);
+
+    // Re-render
+    renderPlaylistCards(playlistsData);
+    setupPlaylistCardListeners();
+    setupPlaylistLikeListeners();
+
+    // Highlight restored card
+    const restoredCard = document.querySelector(`[data-playlist-id="${playlist.playlistID}"]`);
+    if (restoredCard) {
+        restoredCard.classList.add('fade-in', 'highlight');
+        restoredCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        setTimeout(() => {
+            restoredCard.classList.remove('fade-in', 'highlight');
+        }, 2000);
+    }
+
+    // Hide toast
+    const toast = document.getElementById('undoToast');
+    toast.setAttribute('hidden', '');
+
+    // Clear timeout
+    if (undoTimeout) clearTimeout(undoTimeout);
+}
+
+/**
+ * Shows a toast notification
+ * @param {string} message - Toast message
+ * @param {boolean} showUndo - Whether to show undo button
+ */
+function showToast(message, showUndo = false) {
+    const toast = document.getElementById('undoToast');
+    const messageSpan = toast.querySelector('.toast-message');
+    const undoBtn = toast.querySelector('.toast-undo-btn');
+
+    messageSpan.textContent = message;
+    undoBtn.style.display = showUndo ? 'block' : 'none';
+
+    toast.removeAttribute('hidden');
+
+    if (!showUndo) {
+        setTimeout(() => {
+            toast.setAttribute('hidden', '');
+        }, 3000);
+    }
+}
+
+/**
+ * Sets up event listeners for CRUD features
+ */
+function setupCRUDListeners() {
+    // FAB button
+    const fabBtn = document.querySelector('.fab-button');
+    if (fabBtn) {
+        fabBtn.addEventListener('click', () => openPlaylistForm('create'));
+    }
+
+    // Form close button
+    const formCloseBtn = document.querySelector('.form-close-btn');
+    if (formCloseBtn) {
+        formCloseBtn.addEventListener('click', closePlaylistForm);
+    }
+
+    // Form cancel button
+    const formCancelBtn = document.querySelector('.form-cancel-btn');
+    if (formCancelBtn) {
+        formCancelBtn.addEventListener('click', closePlaylistForm);
+    }
+
+    // Form submit
+    const playlistForm = document.getElementById('playlistForm');
+    if (playlistForm) {
+        playlistForm.addEventListener('submit', handlePlaylistFormSubmit);
+    }
+
+    // Add song button
+    const addSongBtn = document.querySelector('.add-song-btn');
+    if (addSongBtn) {
+        addSongBtn.addEventListener('click', () => {
+            const songsContainer = document.getElementById('songsContainer');
+            const currentCount = songsContainer.children.length;
+            if (currentCount < 20) {
+                addSongRow('', '', currentCount);
+            }
+        });
+    }
+
+    // Undo button
+    const undoBtn = document.querySelector('.toast-undo-btn');
+    if (undoBtn) {
+        undoBtn.addEventListener('click', undoDelete);
+    }
+}
+
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     loadPlaylists();
+    setupCRUDListeners();
 });
