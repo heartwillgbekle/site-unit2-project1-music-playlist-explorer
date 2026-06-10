@@ -133,7 +133,7 @@ function createPlaylistCard(playlist) {
     const editBtn = document.createElement('button');
     editBtn.className = 'card-action-btn edit-btn';
     editBtn.setAttribute('aria-label', 'Edit playlist');
-    editBtn.innerHTML = '✏️';
+    editBtn.textContent = 'Edit';
     editBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         openPlaylistForm('edit', playlist.playlistID);
@@ -143,7 +143,7 @@ function createPlaylistCard(playlist) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'card-action-btn delete-btn';
     deleteBtn.setAttribute('aria-label', 'Delete playlist');
-    deleteBtn.innerHTML = '🗑️';
+    deleteBtn.textContent = 'Delete';
     deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         showDeleteConfirmation(playlist.playlistID);
