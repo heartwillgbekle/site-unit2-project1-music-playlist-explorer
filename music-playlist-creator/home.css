@@ -158,6 +158,37 @@
     transform: scale(1.2);
 }
 
+/* Top Navigation */
+.top-nav {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 15;
+    animation: fadeInDown 1s ease-out;
+}
+
+.explore-btn {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, #1ED760 0%, #1ab558 100%);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 50px;
+    box-shadow: 0 4px 16px rgba(30, 215, 96, 0.4);
+    transition: all 0.3s ease;
+}
+
+.explore-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(30, 215, 96, 0.6);
+}
+
+.explore-btn:active {
+    transform: translateY(0) scale(1);
+}
+
 /* Hero Content */
 .hero-content {
     position: fixed;
@@ -173,40 +204,27 @@
     font-size: 3.5rem;
     font-weight: 800;
     color: #ffffff;
-    margin: 0 0 2rem 0;
+    margin: 0;
     text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
     letter-spacing: -0.5px;
     animation: fadeInUp 1s ease-out;
-}
-
-.explore-btn {
-    display: inline-block;
-    padding: 1rem 3rem;
-    background: linear-gradient(135deg, #1ED760 0%, #1ab558 100%);
-    color: #ffffff;
-    font-size: 1.125rem;
-    font-weight: 700;
-    text-decoration: none;
-    border-radius: 50px;
-    box-shadow: 0 8px 24px rgba(30, 215, 96, 0.4);
-    transition: all 0.3s ease;
-    pointer-events: all;
-    animation: fadeInUp 1s ease-out 0.3s both;
-}
-
-.explore-btn:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 12px 32px rgba(30, 215, 96, 0.6);
-}
-
-.explore-btn:active {
-    transform: translateY(-2px) scale(1.02);
 }
 
 @keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
@@ -251,15 +269,19 @@
 }
 
 @media (max-width: 768px) {
-    .hero-tagline {
-        font-size: 2rem;
-        padding: 0 1rem;
-        margin-bottom: 1.5rem;
+    .top-nav {
+        top: 1rem;
+        right: 1rem;
     }
 
     .explore-btn {
-        font-size: 1rem;
-        padding: 0.875rem 2rem;
+        font-size: 0.9375rem;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .hero-tagline {
+        font-size: 2rem;
+        padding: 0 1rem;
     }
 
     .carousel-prev,
@@ -281,13 +303,18 @@
 }
 
 @media (max-width: 480px) {
-    .hero-tagline {
-        font-size: 1.5rem;
+    .top-nav {
+        top: 0.75rem;
+        right: 0.75rem;
     }
 
     .explore-btn {
-        font-size: 0.9375rem;
-        padding: 0.75rem 1.75rem;
+        font-size: 0.875rem;
+        padding: 0.625rem 1.25rem;
+    }
+
+    .hero-tagline {
+        font-size: 1.5rem;
     }
 
     .carousel-playlist-name {
