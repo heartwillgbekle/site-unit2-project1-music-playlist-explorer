@@ -4,7 +4,7 @@
     "playlistName": "Summer Vibes",
     "playlistCreator": "DJ Sunshine",
     "playlistCoverUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=400&fit=crop",
-    "likeCount": 5,
+    "likeCount": 50,
     "songs": [
       {
         "songID": 101,
@@ -62,7 +62,7 @@
     "playlistName": "Chill Beats",
     "playlistCreator": "LoFi Master",
     "playlistCoverUrl": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=400&fit=crop",
-    "likeCount": 5,
+    "likeCount": 200,
     "songs": [
       {
         "songID": 201,
@@ -154,7 +154,7 @@
     "playlistName": "Jazz Classics",
     "playlistCreator": "Miles Ahead",
     "playlistCoverUrl": "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=400&h=400&fit=crop",
-    "likeCount": 5,
+    "likeCount": 0,
     "songs": [
       {
         "songID": 401,
@@ -246,7 +246,7 @@
     "playlistName": "Electronic Dreams",
     "playlistCreator": "Synth Wave",
     "playlistCoverUrl": "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=400&h=400&fit=crop",
-    "likeCount": 5,
+    "likeCount": 0,
     "songs": [
       {
         "songID": 601,

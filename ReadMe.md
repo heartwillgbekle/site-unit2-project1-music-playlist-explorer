@@ -1,8 +1,8 @@
 ## Unit Assignment: Music Playlist Explorer
 
-Submitted by: **NAME**
+Submitted by: **Heartwill Gbekle**
 
-Estimated time spent: **#** hours spent in total
+Estimated time spent: **12** hours spent in total
 
 ### Application Features
 
@@ -150,20 +150,20 @@ Estimated time spent: **#** hours spent in total
 
 * Did the topics discussed in your labs prepare you to complete the assignment? Be specific, which features in your weekly assignment did you feel unprepared to complete?
 
-Add your response here
+The labs covered DOM manipulation, event listeners, and fetch well enough to handle most core features. I felt least prepared for the AI API integration — I had to figure out the OpenRouter request format and error handling.
 
 * If you had more time, what would you have done differently? Would you have added additional features? Changed the way your project responded to a particular event, etc.
-  
-Add your response here
+
+I would have added persistent storage using localStorage so that liked playlists, user-created playlists, and edits survive a page refresh. I also would have improved the mobile layout, since the grid and modal don't adapt as cleanly on smaller screens as I'd like.
 
 * Reflect on your project demo, what went well? Were there things that maybe didn't go as planned? Did you notice something that your peer did that you would like to try next time?
 
-Add your response here
+The live search with debouncing and the undo-delete flow both came across clearly during the demo. One thing that didn't go as planned was the AI description occasionally being slow or timing out, which was noticeable during the live demo. A peer integrated audio so you could actually play small snippets of each song directly in the modal — I'd like to try adding that next time.
 
 ### Open-source libraries used
 
-- Add any links to open-source libraries used in your project.
+- [OpenRouter API](https://openrouter.ai) — used to call the `google/gemma-4-31b-it:free` model for AI-generated playlist descriptions.
 
 ### Shout out
 
-Give a shout out to somebody from your cohort that especially helped you during your project. This can be a fellow peer, instructor, TA, mentor, etc.
+Shout out to Benny, Devarsh, and Greg for their help and support throughout this project!
