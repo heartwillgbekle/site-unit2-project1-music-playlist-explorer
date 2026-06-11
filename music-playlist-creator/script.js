@@ -21,7 +21,7 @@ let searchTimeout = null;
 const AI_API_CONFIG = {
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     apiKey: typeof API_KEY !== 'undefined' ? API_KEY : '',
-    model: 'google/gemma-4-31b-it:free',
+    model: 'openai/gpt-oss-120b:free',
     timeout: 10000 // 10 seconds
 };
 

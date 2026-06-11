@@ -46,14 +46,14 @@ Estimated time spent: **12** hours spent in total
     - [X] If previously liked:
       - [X] The like count on the playlist tile should decrease by 1.
       - [X] There should be visual feedback (such as the heart turning a different color) to show that the playlist has been unliked by the user.
-    - [ ] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** In addition to showcasing the above features, for ease of grading, please film yourself liking and unliking:
-      - [ ] a playlist with a like count of 0
-      - [ ] a playlist with a non-zero like count
+    - [X] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** In addition to showcasing the above features, for ease of grading, please film yourself liking and unliking:
+      - [X] a playlist with a like count of 0
+      - [X] a playlist with a non-zero like count
 
 - [X] **Shuffle Songs**
   - [X] Enable users to shuffle the songs within a playlist using a shuffle button in the playlist’s detail modal.
   - [X] When the shuffle button is clicked, the playlist’s songs should display in a different order.
-  - [ ] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** In addition to showcasing the above features, for ease of grading, please show yourself shuffling the same playlist more than once. 
+  - [X] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** In addition to showcasing the above features, for ease of grading, please show yourself shuffling the same playlist more than once. 
   
 - [X] **Featured Page**
   - [X] Application includes a dedicated page that randomly selects and displays a playlist, showing the playlist’s:
@@ -66,7 +66,7 @@ Estimated time spent: **12** hours spent in total
   - [X] When the page is refreshed or reloaded, a new random playlist is displayed
     - For example, navigating to the all playlists page and then back to the featured playlist page should result in a new random playlist being displayed
     - Note that because your algorithm will not be truly random, it is possible that the same playlist will feature twice in a row. 
-    - [ ] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** In addition to showcasing the above features, for ease of grading, please show yourself refreshing the featured page more than once. 
+    - [X] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** In addition to showcasing the above features, for ease of grading, please show yourself refreshing the featured page more than once. 
   - [X] Application includes a navigation bar or some other mechanism such that users can navigate to the page with all playlists from the featured page and vice versa without using the browser’s back and forward buttons. 
 
 - [X] **Planning Documentation**
@@ -81,7 +81,7 @@ Estimated time spent: **12** hours spent in total
   - [X] The playlist detail modal includes a "Get Description" button.
   - [X] Clicking the button calls an AI API and displays a generated description within the modal.
   - [X] `planning.md` includes an **AI Feature Spec** documenting role, task, inputs, output format, constraints, and failure behavior.
-  - [ ] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** For ease of grading, open your browser’s DevTools Network tab, click the "Get Description" button, and show the outbound request going directly to an AI API URL (e.g., `openrouter.ai`).
+  - [X] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** For ease of grading, open your browser’s DevTools Network tab, click the "Get Description" button, and show the outbound request going directly to an AI API URL (e.g., `openrouter.ai`).
 
 #### STRETCH FEATURES
 
@@ -95,7 +95,7 @@ Estimated time spent: **12** hours spent in total
       - [X] Title
       - [X] Artist
   - [X] The resulting playlist should display in the grid view.
-  - [ ] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** For ease of grading, please show yourself adding at least two songs to the playlist. 
+  - [X] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** For ease of grading, please show yourself adding at least two songs to the playlist. 
 
 - [X] **Edit Existing Playlists**
   - [X] Enable users to modify the details of existing playlists.
@@ -105,9 +105,9 @@ Estimated time spent: **12** hours spent in total
     - [X] Author
     - [X] Songs
   - [X] The playlist grid view and playlist detail modal should update to display any changes (see Required Features, Criterion 1 & 2).
-  - [ ] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** For ease of grading, please show yourself:
-    - [ ] Editing all of a playlist's features (name, creator, AND songs)
-    - [ ] Editing some of a playlist's features (name, creator, OR songs) 
+  - [X] **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS:** For ease of grading, please show yourself:
+    - [X] Editing all of a playlist's features (name, creator, AND songs)
+    - [X] Editing some of a playlist's features (name, creator, OR songs) 
 
 - [X] **Delete Playlists**
   - [X] Add a delete button to each playlist tile within the grid view.
@@ -142,9 +142,7 @@ Estimated time spent: **12** hours spent in total
 
 ### Walkthrough Video
 
-`TODO://` Paste the **shareable link** to your animated app walkthrough below (replace `ADD_LOOM_LINK_HERE`). GitHub markdown won't render an embedded Loom player, so a plain link is what graders will use. Make sure the link is public and playable before submitting. Ensure your walkthrough showcases the presence and/or functionality of all features you implemented above (check them off as you film!). Pay attention to any **VIDEO WALKTHROUGH SPECIAL INSTRUCTIONS** checkboxes listed above to ensure graders see the full functionality of your website. (🚫 Remove this paragraph after adding your walkthrough link.)
-
-**Walkthrough video:** [Music Playlist Explorer Walkthrough](ADD_LOOM_LINK_HERE)
+**Walkthrough video:** [Music Playlist Explorer Walkthrough](https://www.loom.com/share/24217e4b13864e678bec9a5957cd17fc)
 
 ### Reflection
 
